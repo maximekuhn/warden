@@ -1,0 +1,26 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  default:
+    silent: true
+    cmds:
+      - task --list-all
+
+  templ:
+    internal: true
+    cmds:
+      - templ generate
+
+  build:
+    deps: [templ]
+    aliases: [b]
+    cmds:
+      - go build -v -o ./bin/server ./cmd/server/main.go
+
+  clean:
+    cmds:
+      - rm -rf ./bin
+      - go clean
+
