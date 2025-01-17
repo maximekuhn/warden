@@ -21,7 +21,7 @@ func (s *Server) Start() error {
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
 
 	reqIdMiddleware := middlewares.NewRequestIdMiddleware()
-	loggerMiddleware := middlewares.NewLoggerMiddleware(s.logger.With(slog.String("middleware", "LoggerMiddleware")))
+	loggerMiddleware := middlewares.NewLoggerMiddleware(s.logger.With(slog.Bool("LoggerMiddleware", true)))
 	chain := middlewares.Chain(reqIdMiddleware, loggerMiddleware)
 
 	indexHandler := handlers.NewIndexHandler(s.logger.With(slog.String("handler", "IndexHandler")))
