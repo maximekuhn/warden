@@ -3,11 +3,14 @@ package auth
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/maximekuhn/warden/internal/valueobjects"
 )
 
 // User represents data used to authenticate a user.
 type User struct {
+	ID uuid.UUID
+
 	// general information
 	Email         valueobjects.Email
 	HashedPassord HashedPassword
@@ -19,12 +22,14 @@ type User struct {
 }
 
 func NewUser(
+	id uuid.UUID,
 	email valueobjects.Email,
 	hashedPassord HashedPassword,
 	createdAt time.Time,
 	sessionId string,
 	sessionExpireDate time.Time) *User {
 	return &User{
+		ID:                id,
 		Email:             email,
 		HashedPassord:     hashedPassord,
 		CreatedAt:         createdAt,

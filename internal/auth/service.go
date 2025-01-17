@@ -27,6 +27,7 @@ func (s *AuthService) Register(
 		return err
 	}
 	user := NewUser(
+		uuid.New(),
 		email,
 		hashedPassword,
 		time.Now(),
@@ -65,6 +66,7 @@ func (s *AuthService) Login(
 
 	// update user information
 	updated := NewUser(
+		user.ID,
 		email,
 		user.HashedPassord,
 		user.CreatedAt,
@@ -94,6 +96,7 @@ func (s *AuthService) Logout(
 	}
 
 	updated := NewUser(
+		user.ID,
 		user.Email,
 		user.HashedPassord,
 		user.CreatedAt,
