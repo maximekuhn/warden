@@ -280,4 +280,38 @@ func TestAuthBackendCantUpdateUserID(t *testing.T) {
 	}
 }
 
-// TODO: check update email unique
+func TestAuthBackendCantUpdateToAnAlreadyTakenEmail(t *testing.T) {
+	db := createTmpDbWithAllMigrationsApplied()
+	defer db.Close()
+	backend := NewSqliteAuthBackend(db)
+
+	ctx, cancel := createContextWith5MinutesTimeout()
+	defer cancel()
+
+	jeff := createUser(uuid.New(), "jeff@google.com", time.Now(), "", time.Unix(0, 0))
+	if err := backend.Save(ctx, jeff); err != nil {
+		t.Fatalf("Save(jeff): expected ok got err %v", err)
+	}
+
+	bill := createUser(uuid.New(), "bill@microsoft.com", time.Now(), "", time.Unix(0, 0))
+	if err := backend.Save(ctx, bill); err != nil {
+		t.Fatalf("Save(bill): expected ok got err %v", err)
+	}
+
+	newBillEmail, err := valueobjects.NewEmail("jeff@google.com") // already taken by jeff
+	if err != nil {
+		t.Fatalf("new bill email address is invalid: %v", err)
+	}
+	newBill := auth.NewUser(
+		bill.ID,
+		newBillEmail,
+		bill.HashedPassord,
+		bill.CreatedAt,
+		bill.SessionId,
+		bill.SessionExpireDate,
+	)
+	err = backend.Update(ctx, bill, *newBill)
+	if err == nil {
+		t.Fatal("Update(): expected to return err because email address is already taken")
+	}
+}
