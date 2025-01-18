@@ -32,9 +32,9 @@ func NewUser(
 		ID:                id,
 		Email:             email,
 		HashedPassord:     hashedPassord,
-		CreatedAt:         createdAt,
+		CreatedAt:         createdAt.UTC(),
 		SessionId:         sessionId,
-		SessionExpireDate: sessionExpireDate,
+		SessionExpireDate: sessionExpireDate.UTC(),
 	}
 }
 
