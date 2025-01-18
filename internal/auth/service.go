@@ -118,6 +118,12 @@ func (s *AuthService) Authenticate(
 	if !found {
 		return nil, ErrUserNotFound
 	}
+	if user.SessionId != cookie.Value {
+		return nil, ErrBadSessionId
+	}
+	if user.SessionExpireDate.Unix() > time.Now().Unix() {
+		return nil, ErrSessionExpired
+	}
 	return user, nil
 }
 

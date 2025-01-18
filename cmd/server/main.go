@@ -16,6 +16,6 @@ var banner string
 func main() {
 	fmt.Println(banner)
 	l := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	s := server.NewServer(l)
+	s := server.NewServer(l, nil) // FIXME: nil db
 	log.Fatal(s.Start())
 }
