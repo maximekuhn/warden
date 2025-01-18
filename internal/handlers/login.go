@@ -4,15 +4,17 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/maximekuhn/warden/internal/auth"
 	"github.com/maximekuhn/warden/internal/ui/pages"
 )
 
 type LoginHandler struct {
-	logger *slog.Logger
+	logger  *slog.Logger
+	service *auth.AuthService
 }
 
-func NewLoginHandler(l *slog.Logger) *LoginHandler {
-	return &LoginHandler{logger: l}
+func NewLoginHandler(l *slog.Logger, s *auth.AuthService) *LoginHandler {
+	return &LoginHandler{logger: l, service: s}
 }
 
 func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

@@ -35,10 +35,14 @@ func (s *Server) Start() error {
 	indexHandler := handlers.NewIndexHandler(s.logger.With(slog.String("handler", "IndexHandler")))
 	http.Handle("/", chainWithSession.Middleware(indexHandler))
 
-	loginHandler := handlers.NewLoginHandler(s.logger.With(slog.String("handler", "LoginHandler")))
+	loginHandler := handlers.NewLoginHandler(
+		s.logger.With(slog.String("handler", "LoginHandler")),
+		s.app.authService)
 	http.Handle("/login", chain.Middleware(loginHandler))
 
-	signupHandler := handlers.NewSignupHandler(s.logger.With(slog.String("handler", "SignupHandler")))
+	signupHandler := handlers.NewSignupHandler(
+		s.logger.With(slog.String("handler", "SignupHandler")),
+		s.app.authService)
 	http.Handle("/signup", chain.Middleware(signupHandler))
 
 	healthHandler := handlers.NewHealthcheckHandler(s.logger.With(slog.String("handler", "HealtchCheckHandler")))

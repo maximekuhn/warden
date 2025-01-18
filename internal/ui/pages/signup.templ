@@ -1,11 +1,16 @@
 package pages
 
+import "github.com/maximekuhn/warden/internal/ui/components/forms"
+
 templ Signup() {
 	@Page(signupBody())
 }
 
 templ signupBody() {
-	<h1>
-		Sign up
-	</h1>
+	<div>
+		<h1>
+			Sign up
+		</h1>
+		@forms.SignupForm()
+	</div>
 }
