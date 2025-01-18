@@ -41,20 +41,29 @@ func (mw *SessionMiddleware) Middleware(next http.Handler) http.Handler {
 			l.Info("redirecting user to /login")
 
 			// redirect to login page and don't call next handler
+			w.Header().Add("HX-Redirect", "/login") // for HTMX callers
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 
+		l.Info("found cookie")
 		user, err := mw.service.Authenticate(r.Context(), *cookie)
 		if err != nil {
-			mw.handleAuthenticateError(w, r, l)
+			mw.handleAuthenticateError(w, r, l, err)
 			return
 		}
-		slog.Info("user authenticated", slog.String("userId", user.ID.String()))
+		l.Info("user authenticated", slog.String("userId", user.ID.String()))
 		ctx := context.WithValue(r.Context(), LoggedUserKey, *user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
-func (mw *SessionMiddleware) handleAuthenticateError(w http.ResponseWriter, r *http.Request, l *slog.Logger) {
+func (mw *SessionMiddleware) handleAuthenticateError(
+	_ http.ResponseWriter,
+	_ *http.Request,
+	l *slog.Logger,
+	err error,
+) {
+	l.Error("failed to authenticate", slog.String("errMsg", err.Error()))
+	// TODO
 }

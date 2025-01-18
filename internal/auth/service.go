@@ -58,7 +58,7 @@ func (s *AuthService) Login(
 	cookie := http.Cookie{
 		Name:     CookieName,
 		Value:    sessionId,
-		MaxAge:   int(time.Until(cookieExpiryDate)),
+		MaxAge:   int(time.Until(cookieExpiryDate).Seconds()),
 		Secure:   true,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
@@ -121,7 +121,7 @@ func (s *AuthService) Authenticate(
 	if user.SessionId != cookie.Value {
 		return nil, ErrBadSessionId
 	}
-	if user.SessionExpireDate.Unix() > time.Now().Unix() {
+	if user.SessionExpireDate.Before(time.Now()) {
 		return nil, ErrSessionExpired
 	}
 	return user, nil

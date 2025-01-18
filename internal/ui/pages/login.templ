@@ -1,11 +1,16 @@
 package pages
 
+import "github.com/maximekuhn/warden/internal/ui/components/forms"
+
 templ Login() {
 	@Page(loginBody())
 }
 
 templ loginBody() {
-	<h1>
-		Login
-	</h1>
+	<div>
+		<h1>
+			Login	
+		</h1>
+		@forms.LoginForm()
+	</div>
 }
