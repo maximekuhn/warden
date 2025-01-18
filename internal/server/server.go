@@ -27,5 +27,8 @@ func (s *Server) Start() error {
 	indexHandler := handlers.NewIndexHandler(s.logger.With(slog.String("handler", "IndexHandler")))
 	http.Handle("/", chain.Middleware(indexHandler))
 
+	healthHandler := handlers.NewHealthcheckHandler(s.logger.With(slog.String("handler", "HealtchCheckHandler")))
+	http.Handle("/healthcheck", chain.Middleware(healthHandler))
+
 	return http.ListenAndServe(":8787", nil)
 }
