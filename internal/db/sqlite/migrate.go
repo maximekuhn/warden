@@ -60,8 +60,17 @@ func migrate(ctx context.Context, tx *sql.Tx, currentVerNum int) error {
 			return err
 		}
 	}
+	newVersion := migrationFiles[len(migrationFiles)-1].prefixNumber
+	return updateVersionInMetadataTable(ctx, tx, newVersion)
+}
 
-	return nil
+func updateVersionInMetadataTable(ctx context.Context, tx *sql.Tx, newVersion int) error {
+	query := `
+    INSERT INTO migrations_metadata (applied_datetime, current_version)
+    VALUES (?, ?)
+    `
+	_, err := tx.ExecContext(ctx, query, time.Now(), newVersion)
+	return err
 }
 
 func getMigrationFiles() ([]migrationFile, error) {
