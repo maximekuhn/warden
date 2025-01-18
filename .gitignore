@@ -1,2 +1,3 @@
 /bin
 *_templ.go
+/internal/ui/assets/css/styles.css

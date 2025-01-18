@@ -13,8 +13,13 @@ tasks:
     cmds:
       - templ generate
 
+  tailwind:
+    internal: true
+    cmds:
+      - npx tailwindcss -i ./internal/ui/assets/css/input.css -o ./internal/ui/assets/css/styles.css
+
   build:
-    deps: [templ]
+    deps: [templ, tailwind]
     aliases: [b]
     cmds:
       - go build -v -o ./bin/server ./cmd/server/main.go
