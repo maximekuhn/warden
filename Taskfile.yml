@@ -24,3 +24,8 @@ tasks:
       - rm -rf ./bin
       - go clean
 
+  test:
+    aliases: [t]
+    cmds:
+      - go test ./...
+
