@@ -87,7 +87,20 @@ func (h *LoginHandler) post(w http.ResponseWriter, r *http.Request) {
 func (h *LoginHandler) handleLoginError(w http.ResponseWriter, r *http.Request, l *slog.Logger, err error) {
 	l.Error("failed to login", slog.String("errMsg", err.Error()))
 
-	// TODO: switch on error case
-	w.WriteHeader(http.StatusBadRequest)
-	_ = errors.BoxError("Failed not login").Render(r.Context(), w)
+	var errMsg string
+	var statusCode int
+	switch err {
+	case auth.ErrBadCredentials:
+		fallthrough
+	case auth.ErrUserNotFound:
+		errMsg = "Bad credentials"
+		statusCode = http.StatusBadRequest
+	default:
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+
+	}
+	fmt.Printf("statusCode: %v\n", statusCode)
+	w.WriteHeader(statusCode)
+	_ = errors.BoxError(errMsg).Render(r.Context(), w)
 }
