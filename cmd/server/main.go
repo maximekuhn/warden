@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	_ "embed"
 	"fmt"
+	"io"
 	"log"
 	"log/slog"
 	"os"
@@ -17,9 +18,17 @@ var banner string
 
 func main() {
 	fmt.Println(banner)
-	l := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
+	logFile, err := os.OpenFile("warden-logs.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatalf("failed to open log file: %v", err)
+	}
+	logsOutput := io.MultiWriter(os.Stdout, logFile)
+	l := slog.New(slog.NewJSONHandler(logsOutput, nil))
+
 	db := setupDB()
 	defer db.Close()
+
 	s := server.NewServer(l, db)
 	log.Fatal(s.Start())
 }

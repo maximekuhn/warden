@@ -3,4 +3,5 @@
 /internal/ui/assets/css/styles.css
 /tmp
 /warden-db.sqlite3
+/warden-logs.log
 .DS_Store
