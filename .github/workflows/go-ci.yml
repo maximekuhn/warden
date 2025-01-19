@@ -36,7 +36,7 @@ jobs:
           npm install -D tailwindcss
 
       # check fmt
-      - name: fmt check
+      - name: check fmt
         run: |
           [ $(gofmt -l -s . | wc -l) -eq 0 ] && exit 0 || exit 1
 
