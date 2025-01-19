@@ -40,6 +40,11 @@ func (s *Server) Start() error {
 		s.app.authService)
 	http.Handle("/login", chain.Middleware(loginHandler))
 
+	logoutHandler := handlers.NewLogoutHandler(
+		s.logger.With(slog.String("handler", "LogoutHandler")),
+		s.app.authService)
+	http.Handle("/logout", chainWithSession.Middleware(logoutHandler))
+
 	signupHandler := handlers.NewSignupHandler(
 		s.logger.With(slog.String("handler", "SignupHandler")),
 		s.app.authService)
