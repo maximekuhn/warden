@@ -1,3 +1,5 @@
 /bin
 *_templ.go
 /internal/ui/assets/css/styles.css
+/tmp
+/warden-db.sqlite3
