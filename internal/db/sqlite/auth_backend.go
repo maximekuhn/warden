@@ -107,6 +107,9 @@ func (s *SqliteAuthBackend) Update(ctx context.Context, old, new auth.User) erro
 		return err
 	}
 	affected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
 	if affected != 1 {
 		return fmt.Errorf("expected to affter 1 row but affected %d row(s)", affected)
 	}

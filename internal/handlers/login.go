@@ -54,7 +54,7 @@ func (h *LoginHandler) post(w http.ResponseWriter, r *http.Request) {
 
 	if emailStr == "" || passwordStr == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		errors.BoxError("Please fill out all required fields").Render(r.Context(), w)
+		_ = errors.BoxError("Please fill out all required fields").Render(r.Context(), w)
 		return
 	}
 
@@ -62,7 +62,7 @@ func (h *LoginHandler) post(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errMsg := fmt.Sprintf("Invalid email: %s", err)
-		errors.BoxError(errMsg).Render(r.Context(), w)
+		_ = errors.BoxError(errMsg).Render(r.Context(), w)
 		return
 
 	}
@@ -71,7 +71,7 @@ func (h *LoginHandler) post(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errMsg := fmt.Sprintf("Password is not strong enough: %s", err)
-		errors.BoxError(errMsg).Render(r.Context(), w)
+		_ = errors.BoxError(errMsg).Render(r.Context(), w)
 		return
 	}
 
@@ -92,5 +92,5 @@ func (h *LoginHandler) handleLoginError(w http.ResponseWriter, r *http.Request, 
 
 	// TODO: switch on error case
 	w.WriteHeader(http.StatusBadRequest)
-	errors.BoxError("Failed not login").Render(r.Context(), w)
+	_ = errors.BoxError("Failed not login").Render(r.Context(), w)
 }

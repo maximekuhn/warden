@@ -1,0 +1,61 @@
+name: Go CI
+
+on:
+  push:
+    branches:
+      - "**"
+
+# don't waste CI time by cancelling previous workflow on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# for now, this CI will only have one job to do all the checks
+# if we eed to improve CI speed in the future, we might update this file
+# to run checks in parallel.
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # setup go tools
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+      - run: |
+          go install github.com/a-h/templ/cmd/templ@v0.3.819
+      - run: |
+          go install github.com/go-task/task/v3/cmd/task@latest
+
+      # setup npm and dependencies (tailwind)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: |
+          npm install -D tailwindcss
+
+      # check fmt
+      - name: check fmt
+        run: |
+          [ $(gofmt -l -s . | wc -l) -eq 0 ] && exit 0 || exit 1
+
+      # check lint
+      # templ files must be generated first, otherwise linter will complain
+      # that templ files are missing.
+      - name: generate templ files
+        run: |
+          templ generate
+      - name: check lint
+        uses: golangci/golangci-lint-action@v6
+
+      # check build
+      - name: check build
+        run: |
+          task build
+
+      # check test
+      - name: check test
+        run: |
+          task test
+

@@ -107,24 +107,24 @@ func TestAuthBackendGetByEmailOrSessionId(t *testing.T) {
 
 			var user *auth.User
 			var found bool
-			var err error
+			var errGet error
 
 			if test.findByEmail {
 				email, err := valueobjects.NewEmail(test.email)
 				if err != nil {
 					t.Fatalf("could not create email (%s): %s", test.email, err)
 				}
-				user, found, err = backend.GetByEmail(ctx, email)
+				user, found, errGet = backend.GetByEmail(ctx, email)
 			} else {
-				user, found, err = backend.GetBySessionId(ctx, test.sessionId)
+				user, found, errGet = backend.GetBySessionId(ctx, test.sessionId)
 			}
 
-			if err != nil {
-				if !test.shouldBeFound && errors.Is(err, auth.ErrUserNotFound) {
+			if errGet != nil {
+				if !test.shouldBeFound && errors.Is(errGet, auth.ErrUserNotFound) {
 					// success
 					return
 				}
-				t.Fatalf("GetBy(Email|SessionId)(): expected ok got err %v", err)
+				t.Fatalf("GetBy(Email|SessionId)(): expected ok got err %v", errGet)
 			}
 			if !found && !test.shouldBeFound {
 				// succeess

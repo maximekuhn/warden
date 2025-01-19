@@ -24,5 +24,7 @@ func (h *HealthcheckHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h *HealthcheckHandler) get(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Add("Content-Type", "text/plain")
-	w.Write([]byte("all good, thanks!"))
+	if _, err := w.Write([]byte("all good, thanks!")); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
