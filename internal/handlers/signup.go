@@ -48,8 +48,9 @@ func (h *SignupHandler) post(w http.ResponseWriter, r *http.Request) {
 
 	emailStr := r.PostForm.Get("email")
 	passwordStr := r.PostForm.Get("password")
+	passwordConfirmStr := r.PostForm.Get("password-confirm")
 
-	if emailStr == "" || passwordStr == "" {
+	if emailStr == "" || passwordStr == "" || passwordConfirmStr == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		_ = errors.BoxError("Please fill out all required fields").Render(r.Context(), w)
 		return
@@ -69,6 +70,12 @@ func (h *SignupHandler) post(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		errMsg := fmt.Sprintf("Password is not strong enough: %s", err)
 		_ = errors.BoxError(errMsg).Render(r.Context(), w)
+		return
+	}
+
+	if passwordStr != passwordConfirmStr {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = errors.BoxError("Password and confirmation must match!").Render(r.Context(), w)
 		return
 	}
 

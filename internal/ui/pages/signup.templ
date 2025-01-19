@@ -7,10 +7,9 @@ templ Signup() {
 }
 
 templ signupBody() {
-	<div>
-		<h1>
-			Sign up
-		</h1>
-		@forms.SignupForm()
+	<div class="w-scren min-h-screen bg-[url(/assets/images/background.jpeg)] bg-cover bg-center">
+		<div class="flex h-screen items-center justify-center">
+			@forms.SignupForm()
+		</div>
 	</div>
 }

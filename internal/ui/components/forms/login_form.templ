@@ -2,8 +2,8 @@ package forms
 
 templ LoginForm() {
 	<div class="w-full max-w-xs">
+		<div id="login-form-error-container"></div>
 		<div class="mb-4 rounded bg-white px-8 pb-8 pt-6 shadow-xl shadow-black">
-			<div id="login-form-error-container"></div>
 			<h2 class="mb-6 text-center text-2xl font-bold">Log In</h2>
 			<form
 				hx-post="/login"
@@ -20,11 +20,11 @@ templ LoginForm() {
 				</div>
 				<div class="mb-6 flex justify-center">
 					<button class="w-48 rounded bg-primary px-4 py-2 font-bold text-white transition-all duration-200 ease-in-out hover:scale-105 hover:underline" type="submit">
-						Sign In
+						Log in
 					</button>
 				</div>
 			</form>
-			<div class="flex justify-center">
+			<div class="flex justify-center text-center">
 				<p class="italic text-gray-500">
 					No account? Create one <a class="font-semibold text-primary hover:underline" href="/signup">here</a>
 				</p>
