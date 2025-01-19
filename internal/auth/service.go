@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/maximekuhn/warden/internal/transaction"
 	"github.com/maximekuhn/warden/internal/valueobjects"
 )
 
@@ -19,28 +20,34 @@ func NewAuthService(b Backend) *AuthService {
 
 func (s *AuthService) Register(
 	ctx context.Context,
+	uow transaction.UnitOfWork,
 	email valueobjects.Email,
 	password valueobjects.Password,
-) error {
+) (uuid.UUID, error) {
 	hashedPassword, err := bcryptHash(password)
 	if err != nil {
-		return err
+		return uuid.UUID{}, err
 	}
+	userID := uuid.New()
 	user := NewUser(
-		uuid.New(),
+		userID,
 		email,
 		hashedPassword,
 		time.Now(),
 		"",
 		time.Unix(0, 0))
-	return s.b.Save(ctx, *user)
+	if err := s.b.Save(ctx, uow, *user); err != nil {
+		return uuid.UUID{}, err
+	}
+	return userID, nil
 }
 
 func (s *AuthService) Login(
 	ctx context.Context,
+	uow transaction.UnitOfWork,
 	email valueobjects.Email,
 	password valueobjects.Password) (*http.Cookie, error) {
-	user, found, err := s.b.GetByEmail(ctx, email)
+	user, found, err := s.b.GetByEmail(ctx, uow, email)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +79,7 @@ func (s *AuthService) Login(
 		user.CreatedAt,
 		sessionId,
 		cookieExpiryDate)
-	if err := s.b.Update(ctx, *user, *updated); err != nil {
+	if err := s.b.Update(ctx, uow, *user, *updated); err != nil {
 		return nil, err
 	}
 	return &cookie, nil
@@ -80,11 +87,12 @@ func (s *AuthService) Login(
 
 func (s *AuthService) Logout(
 	ctx context.Context,
+	uow transaction.UnitOfWork,
 	cookie http.Cookie) error {
 	if !validateCookieValue(cookie.Value) {
 		return ErrCookieValueMalformed
 	}
-	user, found, err := s.b.GetBySessionId(ctx, cookie.Value)
+	user, found, err := s.b.GetBySessionId(ctx, uow, cookie.Value)
 	if err != nil {
 		return err
 	}
@@ -102,16 +110,17 @@ func (s *AuthService) Logout(
 		user.CreatedAt,
 		"",
 		time.Unix(0, 0))
-	return s.b.Update(ctx, *user, *updated)
+	return s.b.Update(ctx, uow, *user, *updated)
 }
 
 func (s *AuthService) Authenticate(
 	ctx context.Context,
+	uow transaction.UnitOfWork,
 	cookie http.Cookie) (*User, error) {
 	if !validateCookieValue(cookie.Value) {
 		return nil, ErrCookieValueMalformed
 	}
-	user, found, err := s.b.GetBySessionId(ctx, cookie.Value)
+	user, found, err := s.b.GetBySessionId(ctx, uow, cookie.Value)
 	if err != nil {
 		return nil, err
 	}

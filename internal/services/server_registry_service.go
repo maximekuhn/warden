@@ -23,6 +23,7 @@ func NewServerRegistryService(r repositories.MinecraftServerRepository) *ServerR
 
 func (s *ServerRegistryService) Create(
 	ctx context.Context,
+
 	loggedUser *auth.User,
 	name valueobjects.MinecraftServerName,
 ) error {

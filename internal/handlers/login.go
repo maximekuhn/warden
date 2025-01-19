@@ -8,18 +8,28 @@ import (
 	"github.com/maximekuhn/warden/internal/auth"
 	"github.com/maximekuhn/warden/internal/logger"
 	"github.com/maximekuhn/warden/internal/middlewares"
+	"github.com/maximekuhn/warden/internal/transaction"
 	"github.com/maximekuhn/warden/internal/ui/components/errors"
 	"github.com/maximekuhn/warden/internal/ui/pages"
 	"github.com/maximekuhn/warden/internal/valueobjects"
 )
 
 type LoginHandler struct {
-	logger  *slog.Logger
-	service *auth.AuthService
+	logger      *slog.Logger
+	service     *auth.AuthService
+	uowProvider transaction.UnitOfWorkProvider
 }
 
-func NewLoginHandler(l *slog.Logger, s *auth.AuthService) *LoginHandler {
-	return &LoginHandler{logger: l, service: s}
+func NewLoginHandler(
+	l *slog.Logger,
+	s *auth.AuthService,
+	uowProvider transaction.UnitOfWorkProvider,
+) *LoginHandler {
+	return &LoginHandler{
+		logger:      l,
+		service:     s,
+		uowProvider: uowProvider,
+	}
 }
 
 func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +82,9 @@ func (h *LoginHandler) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, err := h.service.Login(r.Context(), email, password)
+	uow := h.uowProvider.Provide()
+
+	cookie, err := h.service.Login(r.Context(), uow, email, password)
 	if err != nil {
 		h.handleLoginError(w, r, l, err)
 		return

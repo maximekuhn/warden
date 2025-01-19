@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/transaction"
 	"github.com/maximekuhn/warden/internal/valueobjects"
 )
 
@@ -22,7 +23,12 @@ func NewSqliteAuthBackend(db *sql.DB) *SqliteAuthBackend {
 	return &SqliteAuthBackend{db: db}
 }
 
-func (s *SqliteAuthBackend) Save(ctx context.Context, user auth.User) error {
+func (s *SqliteAuthBackend) Save(
+	ctx context.Context,
+	uow transaction.UnitOfWork,
+	user auth.User,
+) error {
+	suow := castUnitOfWorkOrPanic(uow)
 	query := `
     INSERT INTO auth (
         user_id, email, hashed_password,
@@ -30,7 +36,7 @@ func (s *SqliteAuthBackend) Save(ctx context.Context, user auth.User) error {
     )
     VALUES (?, ?, ?, ?, ?, ?)
     `
-	_, err := s.db.ExecContext(
+	_, err := suow.ExecContext(
 		ctx,
 		query,
 		user.ID.String(),
@@ -48,25 +54,38 @@ func (s *SqliteAuthBackend) Save(ctx context.Context, user auth.User) error {
 	return nil
 }
 
-func (s *SqliteAuthBackend) GetByEmail(ctx context.Context, email valueobjects.Email) (*auth.User, bool, error) {
+func (s *SqliteAuthBackend) GetByEmail(
+	ctx context.Context,
+	uow transaction.UnitOfWork,
+	email valueobjects.Email,
+) (*auth.User, bool, error) {
 	query := `
     SELECT user_id, email, hashed_password, created_at, session_id, session_expire_date
     FROM auth
     WHERE email = ?
     `
-	return s.getByStringAttribute(ctx, query, email.Value())
+	return s.getByStringAttribute(ctx, uow, query, email.Value())
 }
 
-func (s *SqliteAuthBackend) GetBySessionId(ctx context.Context, sessionId string) (*auth.User, bool, error) {
+func (s *SqliteAuthBackend) GetBySessionId(
+	ctx context.Context,
+	uow transaction.UnitOfWork,
+	sessionId string,
+) (*auth.User, bool, error) {
 	query := `
     SELECT user_id, email, hashed_password, created_at, session_id, session_expire_date
     FROM auth
     WHERE session_id = ?
     `
-	return s.getByStringAttribute(ctx, query, sessionId)
+	return s.getByStringAttribute(ctx, uow, query, sessionId)
 }
 
-func (s *SqliteAuthBackend) Update(ctx context.Context, old, new auth.User) error {
+func (s *SqliteAuthBackend) Update(
+	ctx context.Context,
+	uow transaction.UnitOfWork,
+	old, new auth.User,
+) error {
+	suow := castUnitOfWorkOrPanic(uow)
 	if old.ID != new.ID {
 		return errors.New("user ID can't be updated")
 	}
@@ -102,7 +121,7 @@ func (s *SqliteAuthBackend) Update(ctx context.Context, old, new auth.User) erro
 	query := fmt.Sprintf("UPDATE auth SET %s WHERE user_id = ?", strings.Join(updates, ", "))
 	args = append(args, new.ID)
 
-	res, err := s.db.ExecContext(ctx, query, args...)
+	res, err := suow.ExecContext(ctx, query, args...)
 	if err != nil {
 		return err
 	}
@@ -118,10 +137,13 @@ func (s *SqliteAuthBackend) Update(ctx context.Context, old, new auth.User) erro
 
 func (s *SqliteAuthBackend) getByStringAttribute(
 	ctx context.Context,
+	uow transaction.UnitOfWork,
 	query string,
 	attributeValue string,
 ) (*auth.User, bool, error) {
-	row := s.db.QueryRowContext(ctx, query, attributeValue)
+	suow := castUnitOfWorkOrPanic(uow)
+
+	row := suow.QueryRowContext(ctx, query, attributeValue)
 	if err := row.Err(); err != nil {
 		return nil, false, err
 	}

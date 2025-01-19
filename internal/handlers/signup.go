@@ -8,18 +8,32 @@ import (
 	"github.com/maximekuhn/warden/internal/auth"
 	"github.com/maximekuhn/warden/internal/logger"
 	"github.com/maximekuhn/warden/internal/middlewares"
+	"github.com/maximekuhn/warden/internal/permissions"
+	"github.com/maximekuhn/warden/internal/transaction"
 	"github.com/maximekuhn/warden/internal/ui/components/errors"
 	"github.com/maximekuhn/warden/internal/ui/pages"
 	"github.com/maximekuhn/warden/internal/valueobjects"
 )
 
 type SignupHandler struct {
-	logger  *slog.Logger
-	service *auth.AuthService
+	logger      *slog.Logger
+	authService *auth.AuthService
+	permService *permissions.PermissionsService
+	uowProvider transaction.UnitOfWorkProvider
 }
 
-func NewSignupHandler(l *slog.Logger, s *auth.AuthService) *SignupHandler {
-	return &SignupHandler{logger: l, service: s}
+func NewSignupHandler(
+	l *slog.Logger,
+	as *auth.AuthService,
+	ps *permissions.PermissionsService,
+	uowProvider transaction.UnitOfWorkProvider,
+) *SignupHandler {
+	return &SignupHandler{
+		logger:      l,
+		authService: as,
+		permService: ps,
+		uowProvider: uowProvider,
+	}
 }
 
 func (h *SignupHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -79,8 +93,30 @@ func (h *SignupHandler) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.Register(r.Context(), email, password)
+	uow := h.uowProvider.Provide()
+	if err := uow.Begin(r.Context()); err != nil {
+		l.Error("could not start transaction", slog.String("errMsg", err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	userID, err := h.authService.Register(r.Context(), uow, email, password)
 	if err == nil {
+		// TODO: this should be handled in a transaction, ...
+		// TODO: change this to free plan
+		if err := h.permService.Create(r.Context(), uow, userID, permissions.PlanPro); err != nil {
+			l.Error("failed to create user in perm service", slog.String("errMsg", err.Error()))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		if err := uow.Commit(); err != nil {
+			_ = uow.Rollback()
+			l.Error("could not commit transaction", slog.String("errMsg", err.Error()))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
 		// successfull register, redirect to /login (htmx)
 		w.Header().Add("HX-Redirect", "/login")
 		return

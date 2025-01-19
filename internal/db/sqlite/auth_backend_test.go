@@ -15,13 +15,14 @@ import (
 func TestAuthBackendSave(t *testing.T) {
 	db := createTmpDbWithAllMigrationsApplied()
 	defer db.Close()
+	uow := createUnitOfWork(db)
 	backend := NewSqliteAuthBackend(db)
 	user := createUser(uuid.New(), "jeff@amazon.com", time.Now(), "", time.Unix(0, 0))
 
 	ctx, cancel := createContextWith5MinutesTimeout()
 	defer cancel()
 
-	if err := backend.Save(ctx, user); err != nil {
+	if err := backend.Save(ctx, uow, user); err != nil {
 		t.Fatalf("Save(): expected ok got err %v", err)
 	}
 }
@@ -29,17 +30,18 @@ func TestAuthBackendSave(t *testing.T) {
 func TestAuthBackendSaveDuplicate(t *testing.T) {
 	db := createTmpDbWithAllMigrationsApplied()
 	defer db.Close()
+	uow := createUnitOfWork(db)
 	backend := NewSqliteAuthBackend(db)
 	user := createUser(uuid.New(), "jeff@amazon.com", time.Now(), "", time.Unix(0, 0))
 
 	ctx, cancel := createContextWith5MinutesTimeout()
 	defer cancel()
 
-	if err := backend.Save(ctx, user); err != nil {
+	if err := backend.Save(ctx, uow, user); err != nil {
 		t.Fatalf("Save(): expected ok got err %v", err)
 	}
 
-	err := backend.Save(ctx, user)
+	err := backend.Save(ctx, uow, user)
 	if err == nil {
 		t.Fatalf("Save(): expected duplicate err got ok")
 	}
@@ -51,18 +53,19 @@ func TestAuthBackendSaveDuplicate(t *testing.T) {
 func TestAuthBackendSaveDifferentIdSameEmail(t *testing.T) {
 	db := createTmpDbWithAllMigrationsApplied()
 	defer db.Close()
+	uow := createUnitOfWork(db)
 	backend := NewSqliteAuthBackend(db)
 	user := createUser(uuid.New(), "jeff@amazon.com", time.Now(), "", time.Unix(0, 0))
 
 	ctx, cancel := createContextWith5MinutesTimeout()
 	defer cancel()
 
-	if err := backend.Save(ctx, user); err != nil {
+	if err := backend.Save(ctx, uow, user); err != nil {
 		t.Fatalf("Save(): expected ok got err %v", err)
 	}
 
 	anotherUser := createUser(uuid.New(), "jeff@amazon.com", time.Now(), "", time.Unix(0, 0))
-	err := backend.Save(ctx, anotherUser)
+	err := backend.Save(ctx, uow, anotherUser)
 	if err == nil {
 		t.Fatalf("Save(): expected duplicate err got ok")
 	}
@@ -91,6 +94,7 @@ func TestAuthBackendGetByEmailOrSessionId(t *testing.T) {
 
 	db := createTmpDbWithAllMigrationsApplied()
 	defer db.Close()
+	uow := createUnitOfWork(db)
 	backend := NewSqliteAuthBackend(db)
 
 	for _, test := range testcases {
@@ -100,7 +104,7 @@ func TestAuthBackendGetByEmailOrSessionId(t *testing.T) {
 
 			// pre-insert data
 			if test.shouldBeFound {
-				if err := backend.Save(ctx, test.user); err != nil {
+				if err := backend.Save(ctx, uow, test.user); err != nil {
 					t.Fatalf("Save(): expected ok got err %v", err)
 				}
 			}
@@ -114,9 +118,9 @@ func TestAuthBackendGetByEmailOrSessionId(t *testing.T) {
 				if err != nil {
 					t.Fatalf("could not create email (%s): %s", test.email, err)
 				}
-				user, found, errGet = backend.GetByEmail(ctx, email)
+				user, found, errGet = backend.GetByEmail(ctx, uow, email)
 			} else {
-				user, found, errGet = backend.GetBySessionId(ctx, test.sessionId)
+				user, found, errGet = backend.GetBySessionId(ctx, uow, test.sessionId)
 			}
 
 			if errGet != nil {
@@ -188,13 +192,14 @@ func TestAuthBackendUpdate(t *testing.T) {
 			// create a new db for each test to avoid any conflict
 			db := createTmpDbWithAllMigrationsApplied()
 			defer db.Close()
+			uow := createUnitOfWork(db)
 			backend := NewSqliteAuthBackend(db)
 
 			ctx, cancel := createContextWith5MinutesTimeout()
 			defer cancel()
 
 			// pre-insert data
-			if err := backend.Save(ctx, test.user); err != nil {
+			if err := backend.Save(ctx, uow, test.user); err != nil {
 				t.Fatalf("could not pre-insert data: %v", err)
 			}
 
@@ -232,11 +237,11 @@ func TestAuthBackendUpdate(t *testing.T) {
 				sessionExpireDate,
 			)
 
-			if err := backend.Update(ctx, test.user, *newUser); err != nil {
+			if err := backend.Update(ctx, uow, test.user, *newUser); err != nil {
 				t.Fatalf("Update(): expected ok got err %v", err)
 			}
 
-			fetchedNew, found, err := backend.GetByEmail(ctx, email)
+			fetchedNew, found, err := backend.GetByEmail(ctx, uow, email)
 			if err != nil {
 				t.Fatalf("GetByEmail(): expected ok got err %v", err)
 			}
@@ -254,13 +259,14 @@ func TestAuthBackendUpdate(t *testing.T) {
 func TestAuthBackendCantUpdateUserID(t *testing.T) {
 	db := createTmpDbWithAllMigrationsApplied()
 	defer db.Close()
+	uow := createUnitOfWork(db)
 	backend := NewSqliteAuthBackend(db)
 
 	ctx, cancel := createContextWith5MinutesTimeout()
 	defer cancel()
 
 	user := createUser(uuid.New(), "jeff@google.com", time.Now(), "", time.Unix(0, 0))
-	if err := backend.Save(ctx, user); err != nil {
+	if err := backend.Save(ctx, uow, user); err != nil {
 		t.Fatalf("Save(): expected ok got err %v", err)
 	}
 	newUser := auth.NewUser(
@@ -271,7 +277,7 @@ func TestAuthBackendCantUpdateUserID(t *testing.T) {
 		user.SessionId,
 		user.SessionExpireDate)
 
-	err := backend.Update(ctx, user, *newUser)
+	err := backend.Update(ctx, uow, user, *newUser)
 	if err == nil {
 		t.Fatalf("Update(): expected err but got ok")
 	}
@@ -283,18 +289,19 @@ func TestAuthBackendCantUpdateUserID(t *testing.T) {
 func TestAuthBackendCantUpdateToAnAlreadyTakenEmail(t *testing.T) {
 	db := createTmpDbWithAllMigrationsApplied()
 	defer db.Close()
+	uow := createUnitOfWork(db)
 	backend := NewSqliteAuthBackend(db)
 
 	ctx, cancel := createContextWith5MinutesTimeout()
 	defer cancel()
 
 	jeff := createUser(uuid.New(), "jeff@google.com", time.Now(), "", time.Unix(0, 0))
-	if err := backend.Save(ctx, jeff); err != nil {
+	if err := backend.Save(ctx, uow, jeff); err != nil {
 		t.Fatalf("Save(jeff): expected ok got err %v", err)
 	}
 
 	bill := createUser(uuid.New(), "bill@microsoft.com", time.Now(), "", time.Unix(0, 0))
-	if err := backend.Save(ctx, bill); err != nil {
+	if err := backend.Save(ctx, uow, bill); err != nil {
 		t.Fatalf("Save(bill): expected ok got err %v", err)
 	}
 
@@ -310,7 +317,7 @@ func TestAuthBackendCantUpdateToAnAlreadyTakenEmail(t *testing.T) {
 		bill.SessionId,
 		bill.SessionExpireDate,
 	)
-	err = backend.Update(ctx, bill, *newBill)
+	err = backend.Update(ctx, uow, bill, *newBill)
 	if err == nil {
 		t.Fatal("Update(): expected to return err because email address is already taken")
 	}

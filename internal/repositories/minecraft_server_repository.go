@@ -8,9 +8,22 @@ import (
 )
 
 type MinecraftServerRepository interface {
-	Save(ctx context.Context, ms entities.MinecraftServer) error
-	GetById(ctx context.Context, serverID uuid.UUID) (*entities.MinecraftServer, error)
+	Save(
+		ctx context.Context,
+		// uow transaction.UnitOfWork,
+		ms entities.MinecraftServer,
+	) error
+
+	GetById(
+		ctx context.Context,
+		// uow transaction.UnitOfWork,
+		serverID uuid.UUID,
+	) (*entities.MinecraftServer, error)
 
 	// GetAllForUser returns all minecraft server where user is owner or member.
-	GetAllForUser(ctx context.Context, userID uuid.UUID) ([]entities.MinecraftServer, error)
+	GetAllForUser(
+		ctx context.Context,
+		// uow transaction.UnitOfWork,
+		userID uuid.UUID,
+	) ([]entities.MinecraftServer, error)
 }

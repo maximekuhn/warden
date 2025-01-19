@@ -27,7 +27,8 @@ func (s *Server) Start() error {
 	loggerMiddleware := middlewares.NewLoggerMiddleware(s.logger.With(slog.Bool("LoggerMiddleware", true)))
 	sessionMiddleware := middlewares.NewSessionMiddleware(
 		s.logger.With(slog.Bool("SessionMiddleware", true)),
-		*s.app.authService)
+		*s.app.authService,
+		s.app.uowProvider)
 
 	chain := middlewares.Chain(reqIdMiddleware, loggerMiddleware)
 	chainWithSession := middlewares.Chain(chain, sessionMiddleware)
@@ -37,17 +38,21 @@ func (s *Server) Start() error {
 
 	loginHandler := handlers.NewLoginHandler(
 		s.logger.With(slog.String("handler", "LoginHandler")),
-		s.app.authService)
+		s.app.authService,
+		s.app.uowProvider)
 	http.Handle("/login", chain.Middleware(loginHandler))
 
 	logoutHandler := handlers.NewLogoutHandler(
 		s.logger.With(slog.String("handler", "LogoutHandler")),
-		s.app.authService)
+		s.app.authService,
+		s.app.uowProvider)
 	http.Handle("/logout", chainWithSession.Middleware(logoutHandler))
 
 	signupHandler := handlers.NewSignupHandler(
 		s.logger.With(slog.String("handler", "SignupHandler")),
-		s.app.authService)
+		s.app.authService,
+		s.app.permService,
+		s.app.uowProvider)
 	http.Handle("/signup", chain.Middleware(signupHandler))
 
 	healthHandler := handlers.NewHealthcheckHandler(s.logger.With(slog.String("handler", "HealtchCheckHandler")))

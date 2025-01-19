@@ -8,6 +8,7 @@ import (
 
 	"github.com/maximekuhn/warden/internal/auth"
 	"github.com/maximekuhn/warden/internal/logger"
+	"github.com/maximekuhn/warden/internal/transaction"
 )
 
 type LoggedUserContextKey string
@@ -20,12 +21,21 @@ const LoggedUserKey = LoggedUserContextKey("loggedUser")
 // If the cookie is found and the user is correctly authenticated, it will inject
 // the user in the request context (LoggedUserKey) and process the next handler.
 type SessionMiddleware struct {
-	logger  *slog.Logger
-	service auth.AuthService
+	logger      *slog.Logger
+	service     auth.AuthService
+	uowProvider transaction.UnitOfWorkProvider
 }
 
-func NewSessionMiddleware(l *slog.Logger, s auth.AuthService) *SessionMiddleware {
-	return &SessionMiddleware{logger: l, service: s}
+func NewSessionMiddleware(
+	l *slog.Logger,
+	s auth.AuthService,
+	uowProvider transaction.UnitOfWorkProvider,
+) *SessionMiddleware {
+	return &SessionMiddleware{
+		logger:      l,
+		service:     s,
+		uowProvider: uowProvider,
+	}
 }
 
 func (mw *SessionMiddleware) Middleware(next http.Handler) http.Handler {
@@ -49,7 +59,7 @@ func (mw *SessionMiddleware) Middleware(next http.Handler) http.Handler {
 		}
 
 		l.Info("found cookie")
-		user, err := mw.service.Authenticate(r.Context(), *cookie)
+		user, err := mw.service.Authenticate(r.Context(), mw.uowProvider.Provide(), *cookie)
 		if err != nil {
 			mw.handleAuthenticateError(w, r, l, err)
 			return

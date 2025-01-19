@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/transaction"
 )
 
 type PermissionsService struct {
@@ -20,11 +21,12 @@ func NewPermissionsService(b Backend) *PermissionsService {
 
 func (s *PermissionsService) Create(
 	ctx context.Context,
+	uow transaction.UnitOfWork,
 	userID uuid.UUID,
 	plan Plan,
 ) error {
 	user := NewUser(userID, plan, make(map[uuid.UUID]Role))
-	return s.backend.Save(ctx, *user)
+	return s.backend.Save(ctx, uow, *user)
 }
 
 // HasMinecraftServerPermission returns if the logged user has permission
@@ -33,11 +35,12 @@ func (s *PermissionsService) Create(
 // If a non-nil error is returned, the result should be discarded.
 func (s *PermissionsService) HasMinecraftServerPermission(
 	ctx context.Context,
+	uow transaction.UnitOfWork,
 	loggedUser *auth.User,
 	serverID uuid.UUID,
 	action Action,
 ) (bool, error) {
-	user, found, err := s.backend.GetById(ctx, loggedUser.ID)
+	user, found, err := s.backend.GetById(ctx, uow, loggedUser.ID)
 	if err != nil {
 		return false, err
 	}
@@ -68,10 +71,11 @@ func (s *PermissionsService) HasMinecraftServerPermission(
 // If a non-nil error is returned, the result should be discarded.
 func (s *PermissionsService) HasPolicy(
 	ctx context.Context,
+	uow transaction.UnitOfWork,
 	loggedUser *auth.User,
 	policy Policy,
 ) (bool, error) {
-	user, found, err := s.backend.GetById(ctx, loggedUser.ID)
+	user, found, err := s.backend.GetById(ctx, uow, loggedUser.ID)
 	if err != nil {
 		return false, err
 	}
