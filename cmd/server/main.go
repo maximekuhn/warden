@@ -36,8 +36,7 @@ func setupDB() *sql.DB {
 	if err := db.Ping(); err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)
 	}
-	// TODO: this sucks, Migrate should read from the metadata table, if available
-	if err := sqlite.Migrate(db, 2); err != nil {
+	if err := sqlite.Migrate(db); err != nil {
 		db.Close()
 		log.Fatalf("Failed to apply migrations: %v", err)
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"errors"
 	"io/fs"
 	"path/filepath"
 	"sort"
@@ -15,9 +16,8 @@ import (
 //go:embed migrations/*.sql
 var migrations embed.FS
 
-// Migrate accepts a current version number and applies all required migrations.
-// Only sql files with a prefix number > currentVerNum will be executed.
-func Migrate(db *sql.DB, currentVerNum int) error {
+// Migrate applies all required migrations.
+func Migrate(db *sql.DB) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 	tx, err := db.BeginTx(ctx, nil)
@@ -33,11 +33,16 @@ func Migrate(db *sql.DB, currentVerNum int) error {
 			err = tx.Commit()
 		}
 	}()
-	err = migrate(ctx, tx, currentVerNum)
+	err = migrate(ctx, tx)
 	return err
 }
 
-func migrate(ctx context.Context, tx *sql.Tx, currentVerNum int) error {
+func migrate(ctx context.Context, tx *sql.Tx) error {
+	currentVerNum, err := getCurrentVersion(ctx, tx)
+	if err != nil {
+		return err
+	}
+
 	migrationFiles, err := getMigrationFiles()
 	if err != nil {
 		return err
@@ -71,6 +76,33 @@ func updateVersionInMetadataTable(ctx context.Context, tx *sql.Tx, newVersion in
     `
 	_, err := tx.ExecContext(ctx, query, time.Now(), newVersion)
 	return err
+}
+
+// getCurrentVersion returns the current version, or 0 if it't not found
+// A non-nil error indicates something bad and the migration should not continue.
+func getCurrentVersion(ctx context.Context, tx *sql.Tx) (int, error) {
+	query := `
+    SELECT current_version
+    FROM migrations_metadata
+    ORDER BY applied_datetime DESC
+    LIMIT 1
+    `
+
+	var currentVersion int
+	err := tx.QueryRowContext(ctx, query).Scan(&currentVersion)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// table exists, but for some reason there is no entry..
+			// we will apply all migrations
+			return 0, nil
+		}
+		if strings.Contains(strings.ToLower(err.Error()), "no such table: migrations_metadata") {
+			// the table doesn't exist, we need to start migrations from scratch
+			return 0, nil
+		}
+		return 0, err
+	}
+	return currentVersion, nil
 }
 
 func getMigrationFiles() ([]migrationFile, error) {
