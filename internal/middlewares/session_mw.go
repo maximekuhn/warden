@@ -59,11 +59,13 @@ func (mw *SessionMiddleware) Middleware(next http.Handler) http.Handler {
 }
 
 func (mw *SessionMiddleware) handleAuthenticateError(
-	_ http.ResponseWriter,
-	_ *http.Request,
+	w http.ResponseWriter,
+	r *http.Request,
 	l *slog.Logger,
 	err error,
 ) {
+	// TODO: check failure reason and return accordingly
 	l.Error("failed to authenticate", slog.String("errMsg", err.Error()))
-	// TODO
+	w.Header().Add("HX-Redirect", "/login") // for HTMX callers
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
