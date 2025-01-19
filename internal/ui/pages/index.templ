@@ -1,12 +1,14 @@
 package pages
 
-templ Index() {
-	@Page(indexBody())
+import "github.com/maximekuhn/warden/internal/auth"
+
+templ Index(loggedUser auth.User) {
+	@Page(indexBody(loggedUser))
 }
 
-templ indexBody() {
+templ indexBody(loggedUser auth.User) {
 	<h1 class="3xl text-lime-400 bg-primary">
-		Hello, World!
+		Hello, { loggedUser.Email.Value() }!
 	</h1>
 	<button hx-post="/logout">
 		Logout

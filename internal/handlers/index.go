@@ -4,6 +4,9 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/logger"
+	"github.com/maximekuhn/warden/internal/middlewares"
 	"github.com/maximekuhn/warden/internal/ui/pages"
 )
 
@@ -24,7 +27,14 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *IndexHandler) get(w http.ResponseWriter, r *http.Request) {
-	if err := pages.Index().Render(r.Context(), w); err != nil {
+	l := logger.UpgradeLoggerWithRequestId(r.Context(), middlewares.RequestIdKey, h.logger)
+	loggedUser, ok := r.Context().Value(middlewares.LoggedUserKey).(auth.User)
+	if !ok {
+		l.Error("logged user not found in request context")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if err := pages.Index(loggedUser).Render(r.Context(), w); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

@@ -17,6 +17,8 @@ const LoggedUserKey = LoggedUserContextKey("loggedUser")
 // SessionMiddleware is a middleware that expects a cookie and check
 // if the user has a valid session. If none of these 2 statements are true,
 // the user will be redirected to the login page.
+// If the cookie is found and the user is correctly authenticated, it will inject
+// the user in the request context (LoggedUserKey) and process the next handler.
 type SessionMiddleware struct {
 	logger  *slog.Logger
 	service auth.AuthService
