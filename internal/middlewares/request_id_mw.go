@@ -11,6 +11,9 @@ type RequestIdContextKey string
 
 const RequestIdKey = RequestIdContextKey("requestId")
 
+// RequestIdMiddleware is a middleware that injects a request Id into the
+// request's context, if none exist.
+// The request Id can be accessed using the key RequestIdKey.
 type RequestIdMiddleware struct{}
 
 func NewRequestIdMiddleware() *RequestIdMiddleware {

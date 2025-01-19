@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+// LoggerMiddleware is a middleware that logs the request mehtod and URI.
+// It also keeps track of the chain execution time and logs it at the end.
 type LoggerMiddleware struct {
 	logger *slog.Logger
 }
