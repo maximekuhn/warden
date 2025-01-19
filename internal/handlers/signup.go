@@ -54,7 +54,7 @@ func (h *SignupHandler) post(w http.ResponseWriter, r *http.Request) {
 
 	if emailStr == "" || passwordStr == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		errors.BoxError("Please fill out all required fields").Render(r.Context(), w)
+		_ = errors.BoxError("Please fill out all required fields").Render(r.Context(), w)
 		return
 	}
 
@@ -62,7 +62,7 @@ func (h *SignupHandler) post(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errMsg := fmt.Sprintf("Invalid email: %s", err)
-		errors.BoxError(errMsg).Render(r.Context(), w)
+		_ = errors.BoxError(errMsg).Render(r.Context(), w)
 		return
 
 	}
@@ -71,7 +71,7 @@ func (h *SignupHandler) post(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		errMsg := fmt.Sprintf("Password is not strong enough: %s", err)
-		errors.BoxError(errMsg).Render(r.Context(), w)
+		_ = errors.BoxError(errMsg).Render(r.Context(), w)
 		return
 	}
 
@@ -85,8 +85,8 @@ func (h *SignupHandler) post(w http.ResponseWriter, r *http.Request) {
 	l.Error("failed to register", slog.String("errMsg", err.Error()))
 
 	// handle error
-	errMsg := ""
-	statusCode := http.StatusInternalServerError
+	var errMsg string
+	var statusCode int
 	switch err {
 	case auth.ErrUserAlreadyExists:
 		errMsg = "This email is not available"
@@ -97,5 +97,5 @@ func (h *SignupHandler) post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(statusCode)
-	errors.BoxError(errMsg).Render(r.Context(), w)
+	_ = errors.BoxError(errMsg).Render(r.Context(), w)
 }
