@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/logger"
 	"github.com/maximekuhn/warden/internal/middlewares"
 )
 
@@ -26,11 +27,7 @@ func (h *LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *LogoutHandler) post(w http.ResponseWriter, r *http.Request) {
-	reqId, ok := r.Context().Value(middlewares.RequestIdKey).(string)
-	if !ok {
-		reqId = "unknown"
-	}
-	l := h.logger.With(slog.String("requestId", reqId))
+	l := logger.UpgradeLoggerWithRequestId(r.Context(), middlewares.RequestIdKey, h.logger)
 
 	cookie, err := r.Cookie(auth.CookieName)
 	if err != nil {

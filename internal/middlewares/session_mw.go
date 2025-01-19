@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/logger"
 )
 
 type LoggedUserContextKey string
@@ -24,11 +25,7 @@ func NewSessionMiddleware(l *slog.Logger, s auth.AuthService) *SessionMiddleware
 
 func (mw *SessionMiddleware) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		reqId, ok := r.Context().Value(RequestIdKey).(string)
-		if !ok {
-			reqId = "unknown"
-		}
-		l := mw.logger.With(slog.String("requestId", reqId))
+		l := logger.UpgradeLoggerWithRequestId(r.Context(), RequestIdKey, mw.logger)
 
 		cookie, err := r.Cookie(auth.CookieName)
 		if err != nil {

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/logger"
 	"github.com/maximekuhn/warden/internal/middlewares"
 	"github.com/maximekuhn/warden/internal/ui/components/errors"
 	"github.com/maximekuhn/warden/internal/ui/pages"
@@ -40,11 +41,7 @@ func (h *LoginHandler) get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *LoginHandler) post(w http.ResponseWriter, r *http.Request) {
-	reqId, ok := r.Context().Value(middlewares.RequestIdKey).(string)
-	if !ok {
-		reqId = "unknown"
-	}
-	l := h.logger.With(slog.String("requestId", reqId))
+	l := logger.UpgradeLoggerWithRequestId(r.Context(), middlewares.RequestIdKey, h.logger)
 
 	// TODO: handle potentiel error
 	_ = r.ParseForm()
