@@ -2,11 +2,18 @@ package forms
 
 templ SignupForm() {
 	<div id="signup-form-error-container"></div>
-	<form hx-post="/signup" hx-target="#signup-form-error-container" hx-swap="outerHTML">
-		<label for="email">Email:</label>
-		<input type="email" id="email" name="email" required/>
-		<label for="password">Password:</label>
-		<input type="password" id="password" name="password" required/>
-		<button type="submit">Sign Up</button>
-	</form>
+	<div class="max-w-sm w-full">
+		<form
+			hx-post="/signup"
+			hx-target="#signup-form-error-container"
+			hx-swap="outerHTML"
+			class="bg-neutral"
+		>
+			<label for="email">Email:</label>
+			<input type="email" id="email" name="email" required/>
+			<label for="password">Password:</label>
+			<input type="password" id="password" name="password" required/>
+			<button type="submit">Sign Up</button>
+		</form>
+	</div>
 }

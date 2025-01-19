@@ -7,13 +7,12 @@ templ Login() {
 }
 
 templ loginBody() {
-	<div>
+	<div class="w-scren min-h-screen bg-[url(/assets/images/background.jpeg)] bg-cover bg-center">
 		<h1>
 			Login	
 		</h1>
-		@forms.LoginForm()
-		<div>
-			No account? Create one <a href="/signup">here</a>
+		<div class="flex h-screen items-center justify-center">
+			@forms.LoginForm()
 		</div>
 	</div>
 }
