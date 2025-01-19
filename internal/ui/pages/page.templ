@@ -1,5 +1,10 @@
 package pages
 
+import (
+	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/ui/components/navbar"
+)
+
 templ Page(body templ.Component) {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -19,4 +24,15 @@ templ Page(body templ.Component) {
 		</body>
 		<script src="/assets/js/htmxBeforeSwap.js"></script>
 	</html>
+}
+
+templ PageWithNavbar(loggedUser auth.User, body templ.Component) {
+	@Page(pageWithNavbarBody(loggedUser, body))
+}
+
+templ pageWithNavbarBody(loggedUser auth.User, body templ.Component) {
+	<div>
+		@navbar.Navbar(loggedUser)
+		@body
+	</div>
 }
