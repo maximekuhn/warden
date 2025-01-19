@@ -32,7 +32,7 @@ func createTmpDb() *sql.DB {
 
 func createTmpDbWithAllMigrationsApplied() *sql.DB {
 	db := createTmpDb()
-	if err := Migrate(db, 0); err != nil {
+	if err := Migrate(db); err != nil {
 		db.Close()
 		panic(err)
 	}
