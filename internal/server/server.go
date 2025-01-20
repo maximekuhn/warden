@@ -50,9 +50,7 @@ func (s *Server) Start() error {
 
 	signupHandler := handlers.NewSignupHandler(
 		s.logger.With(slog.String("handler", "SignupHandler")),
-		s.app.authService,
-		s.app.permService,
-		s.app.uowProvider)
+		s.app.createUserCmdHandler)
 	http.Handle("/signup", chain.Middleware(signupHandler))
 
 	healthHandler := handlers.NewHealthcheckHandler(s.logger.With(slog.String("handler", "HealtchCheckHandler")))
