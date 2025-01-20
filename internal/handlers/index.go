@@ -28,6 +28,8 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (h *IndexHandler) get(w http.ResponseWriter, r *http.Request) {
 	l := logger.UpgradeLoggerWithRequestId(r.Context(), middlewares.RequestIdKey, h.logger)
+	l = logger.UpgradeLoggerWithUserId(r.Context(), middlewares.LoggedUserKey, l)
+
 	loggedUser, ok := r.Context().Value(middlewares.LoggedUserKey).(auth.User)
 	if !ok {
 		l.Error("logged user not found in request context")
@@ -35,6 +37,7 @@ func (h *IndexHandler) get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := pages.Index(loggedUser).Render(r.Context(), w); err != nil {
+		l.Error("failed to render pages.Index", slog.String("errMsg", err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
