@@ -25,158 +25,111 @@ templ indexBody(userPlan permissions.Plan) {
 templ indexBodyChatGPT(userPlan permissions.Plan) {
 	<div class="flex h-full max-h-full justify-center px-24 space-x-12">
 		<!-- Left Section -->
-		<div class="w-1/4 bg-bg-secondary p-4 space-y-4 border border-neutral rounded-sm max-h-full h-fit">
+		<div class="w-1/4 p-4 space-y-4 border border-neutral rounded-sm h-fit max-h-full flex flex-col">
 			<!-- Create Server Form -->
 			if userPlan == permissions.PlanPro {
 				@forms.CreateMinecraftServerForm()
 			}
 			<!-- Invitations List -->
-			<div class="max-h-full flex flex-col">
-				<div class="bg-white shadow-sm rounded-sm p-4">
-					<h2 class="mb-6 text-left text-2xl font-bold">Invitations</h2>
-					<div id="invitations-list">
-						<!-- Example invitation item -->
-						<div class="flex justify-between items-center py-2 border-b">
-							<div>
-								<p class="text-sm font-medium">Server: <span class="font-semibold">MinecraftWorld</span></p>
-								<p class="text-sm text-gray-500">Owner: user@example.com</p>
-							</div>
-							<div class="flex space-x-2">
-								<button
-									class="bg-green-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-green-600"
-									hx-post="/invitations/accept"
-									hx-vals='{ "server_id": "1" }'
-								>
-									Accept
-								</button>
-								<button
-									class="bg-red-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-red-600"
-									hx-post="/invitations/reject"
-									hx-vals='{ "server_id": "1" }'
-								>
-									Reject
-								</button>
-							</div>
+			<div class="flex-grow overflow-y-auto bg-white shadow-sm rounded-sm p-4">
+				<h2 class="mb-6 text-left text-2xl font-bold">Invitations</h2>
+				<div id="invitations-list">
+					<div class="flex justify-between items-center py-2 border-b">
+						<div>
+							<p class="text-sm font-medium">Server: <span class="font-semibold">MinecraftWorld</span></p>
+							<p class="text-sm text-gray-500">Owner: user@example.com</p>
 						</div>
-						<div class="flex justify-between items-center py-2 border-b">
-							<div>
-								<p class="text-sm font-medium">Server: <span class="font-semibold">MinecraftWorld</span></p>
-								<p class="text-sm text-gray-500">Owner: user@example.com</p>
-							</div>
-							<div class="flex space-x-2">
-								<button
-									class="bg-green-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-green-600"
-									hx-post="/invitations/accept"
-									hx-vals='{ "server_id": "1" }'
-								>
-									Accept
-								</button>
-								<button
-									class="bg-red-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-red-600"
-									hx-post="/invitations/reject"
-									hx-vals='{ "server_id": "1" }'
-								>
-									Reject
-								</button>
-							</div>
+						<div class="flex space-x-2">
+							<button
+								class="bg-green-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-green-600"
+								hx-post="/invitations/accept"
+								hx-vals='{ "server_id": "1" }'
+							>
+								Accept
+							</button>
+							<button
+								class="bg-red-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-red-600"
+								hx-post="/invitations/reject"
+								hx-vals='{ "server_id": "1" }'
+							>
+								Reject
+							</button>
 						</div>
-						<div class="flex justify-between items-center py-2 border-b">
-							<div>
-								<p class="text-sm font-medium">Server: <span class="font-semibold">MinecraftWorld</span></p>
-								<p class="text-sm text-gray-500">Owner: user@example.com</p>
-							</div>
-							<div class="flex space-x-2">
-								<button
-									class="bg-green-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-green-600"
-									hx-post="/invitations/accept"
-									hx-vals='{ "server_id": "1" }'
-								>
-									Accept
-								</button>
-								<button
-									class="bg-red-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-red-600"
-									hx-post="/invitations/reject"
-									hx-vals='{ "server_id": "1" }'
-								>
-									Reject
-								</button>
-							</div>
+					</div>
+					<div class="flex justify-between items-center py-2 border-b">
+						<div>
+							<p class="text-sm font-medium">Server: <span class="font-semibold">MinecraftWorld</span></p>
+							<p class="text-sm text-gray-500">Owner: user@example.com</p>
 						</div>
-						<div class="flex justify-between items-center py-2 border-b">
-							<div>
-								<p class="text-sm font-medium">Server: <span class="font-semibold">MinecraftWorld</span></p>
-								<p class="text-sm text-gray-500">Owner: user@example.com</p>
-							</div>
-							<div class="flex space-x-2">
-								<button
-									class="bg-green-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-green-600"
-									hx-post="/invitations/accept"
-									hx-vals='{ "server_id": "1" }'
-								>
-									Accept
-								</button>
-								<button
-									class="bg-red-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-red-600"
-									hx-post="/invitations/reject"
-									hx-vals='{ "server_id": "1" }'
-								>
-									Reject
-								</button>
-							</div>
+						<div class="flex space-x-2">
+							<button
+								class="bg-green-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-green-600"
+								hx-post="/invitations/accept"
+								hx-vals='{ "server_id": "1" }'
+							>
+								Accept
+							</button>
+							<button
+								class="bg-red-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-red-600"
+								hx-post="/invitations/reject"
+								hx-vals='{ "server_id": "1" }'
+							>
+								Reject
+							</button>
 						</div>
-						<div class="flex justify-between items-center py-2 border-b">
-							<div>
-								<p class="text-sm font-medium">Server: <span class="font-semibold">MinecraftWorld</span></p>
-								<p class="text-sm text-gray-500">Owner: user@example.com</p>
-							</div>
-							<div class="flex space-x-2">
-								<button
-									class="bg-green-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-green-600"
-									hx-post="/invitations/accept"
-									hx-vals='{ "server_id": "1" }'
-								>
-									Accept
-								</button>
-								<button
-									class="bg-red-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-red-600"
-									hx-post="/invitations/reject"
-									hx-vals='{ "server_id": "1" }'
-								>
-									Reject
-								</button>
-							</div>
+					</div>
+					<div class="flex justify-between items-center py-2 border-b">
+						<div>
+							<p class="text-sm font-medium">Server: <span class="font-semibold">MinecraftWorld</span></p>
+							<p class="text-sm text-gray-500">Owner: user@example.com</p>
 						</div>
-						<div class="flex justify-between items-center py-2 border-b">
-							<div>
-								<p class="text-sm font-medium">Server: <span class="font-semibold">MinecraftWorld</span></p>
-								<p class="text-sm text-gray-500">Owner: user@example.com</p>
-							</div>
-							<div class="flex space-x-2">
-								<button
-									class="bg-green-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-green-600"
-									hx-post="/invitations/accept"
-									hx-vals='{ "server_id": "1" }'
-								>
-									Accept
-								</button>
-								<button
-									class="bg-red-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-red-600"
-									hx-post="/invitations/reject"
-									hx-vals='{ "server_id": "1" }'
-								>
-									Reject
-								</button>
-							</div>
+						<div class="flex space-x-2">
+							<button
+								class="bg-green-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-green-600"
+								hx-post="/invitations/accept"
+								hx-vals='{ "server_id": "1" }'
+							>
+								Accept
+							</button>
+							<button
+								class="bg-red-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-red-600"
+								hx-post="/invitations/reject"
+								hx-vals='{ "server_id": "1" }'
+							>
+								Reject
+							</button>
+						</div>
+					</div>
+					<div class="flex justify-between items-center py-2 border-b">
+						<div>
+							<p class="text-sm font-medium">Server: <span class="font-semibold">MinecraftWorld</span></p>
+							<p class="text-sm text-gray-500">Owner: user@example.com</p>
+						</div>
+						<div class="flex space-x-2">
+							<button
+								class="bg-green-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-green-600"
+								hx-post="/invitations/accept"
+								hx-vals='{ "server_id": "1" }'
+							>
+								Accept
+							</button>
+							<button
+								class="bg-red-500 text-white text-sm px-2 py-1 rounded-sm hover:bg-red-600"
+								hx-post="/invitations/reject"
+								hx-vals='{ "server_id": "1" }'
+							>
+								Reject
+							</button>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 		<!-- Right Section -->
-		<div class="w-3/4 p-4 border rounded-sm h-full max-h-full border-neutral flex flex-col">
-			<div class="bg-white shadow-sm rounded-sm p-4 flex-1 overflow-y-auto">
+		<div class="w-3/4 p-4 border rounded-sm h-full max-h-full border-neutral flex flex-col overflow-y-auto">
+			<div class="bg-white shadow-sm rounded-sm p-4">
 				<h2 class="mb-6 text-left text-2xl font-bold">Manage servers</h2>
-				<div id="servers-list" class="divide-y overflow-y-auto">
+				<div id="servers-list" class="divide-y">
 					<!-- Example server item -->
 					<div class="py-2">
 						<p class="text-sm font-medium truncate">Server: <span class="font-semibold">MinecraftWorld</span></p>
