@@ -7,15 +7,17 @@ import (
 	"github.com/maximekuhn/warden/internal/auth"
 	"github.com/maximekuhn/warden/internal/logger"
 	"github.com/maximekuhn/warden/internal/middlewares"
+	"github.com/maximekuhn/warden/internal/queries"
 	"github.com/maximekuhn/warden/internal/ui/pages"
 )
 
 type IndexHandler struct {
-	logger *slog.Logger
+	logger                  *slog.Logger
+	getUserPlanQueryHandler *queries.GetUserPlanQueryHandler
 }
 
-func NewIndexHandler(l *slog.Logger) *IndexHandler {
-	return &IndexHandler{logger: l}
+func NewIndexHandler(l *slog.Logger, queryHandler *queries.GetUserPlanQueryHandler) *IndexHandler {
+	return &IndexHandler{logger: l, getUserPlanQueryHandler: queryHandler}
 }
 
 func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +38,20 @@ func (h *IndexHandler) get(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	if err := pages.Index(loggedUser).Render(r.Context(), w); err != nil {
+
+	// get user plan, it is needed to correctly display the index page.
+	// For instance, if the user has the plan free, we should not display a button
+	// to create a new minecraft, as this plan doesn't allow him to do so.
+	plan, err := h.getUserPlanQueryHandler.Handle(r.Context(), queries.GetUserPlanQuery{
+		UserID: loggedUser.ID,
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		l.Error("could not retrieve user plan", slog.String("errMsg", err.Error()))
+		return
+	}
+
+	if err := pages.Index(loggedUser, plan).Render(r.Context(), w); err != nil {
 		l.Error("failed to render pages.Index", slog.String("errMsg", err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)
 	}

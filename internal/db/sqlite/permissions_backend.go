@@ -50,7 +50,7 @@ func (s *SqlitePermissionsBackend) GetById(ctx context.Context, uow transaction.
 	}
 
 	user := permissions.NewUser(userID, plan, make(map[uuid.UUID]permissions.Role))
-	return user, false, nil
+	return user, true, nil
 }
 
 func planToDb(plan permissions.Plan) int {

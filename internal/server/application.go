@@ -7,6 +7,7 @@ import (
 	"github.com/maximekuhn/warden/internal/commands"
 	"github.com/maximekuhn/warden/internal/db/sqlite"
 	"github.com/maximekuhn/warden/internal/permissions"
+	"github.com/maximekuhn/warden/internal/queries"
 	"github.com/maximekuhn/warden/internal/transaction"
 )
 
@@ -16,6 +17,8 @@ type application struct {
 	uowProvider transaction.UnitOfWorkProvider
 
 	createUserCmdHandler *commands.CreateUserCommandHandler
+
+	getUserPlanQueryHandler *queries.GetUserPlanQueryHandler
 }
 
 func newApplication(db *sql.DB) application {
@@ -29,10 +32,13 @@ func newApplication(db *sql.DB) application {
 
 	createUserCmdHandler := commands.NewCreateUserCommandHandler(authService, permService, uowProvider)
 
+	getUserPlanQueryHandler := queries.NewGetUserPlanQueryHandler(permService, uowProvider)
+
 	return application{
-		authService:          authService,
-		permService:          permService,
-		uowProvider:          uowProvider,
-		createUserCmdHandler: createUserCmdHandler,
+		authService:             authService,
+		permService:             permService,
+		uowProvider:             uowProvider,
+		createUserCmdHandler:    createUserCmdHandler,
+		getUserPlanQueryHandler: getUserPlanQueryHandler,
 	}
 }

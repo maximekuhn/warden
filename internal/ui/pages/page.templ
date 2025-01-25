@@ -31,8 +31,10 @@ templ PageWithNavbar(loggedUser auth.User, body templ.Component) {
 }
 
 templ pageWithNavbarBody(loggedUser auth.User, body templ.Component) {
-	<div>
+	<div class="h-screen flex flex-col">
 		@navbar.Navbar(loggedUser)
-		@body
+		<div class="flex-1 overflow-auto mt-8 mb-8">
+			@body
+		</div>
 	</div>
 }

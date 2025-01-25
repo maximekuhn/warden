@@ -3,7 +3,7 @@ package forms
 templ SignupForm() {
 	<div class="w-full max-w-xs">
 		<div id="signup-form-error-container"></div>
-		<div class="mb-4 rounded bg-white px-8 pb-8 pt-6 shadow-xl shadow-black">
+		<div class="mb-4 rounded-sm bg-white px-8 pb-8 pt-6 shadow-xl shadow-black">
 			<h2 class="mb-6 text-center text-2xl font-bold">Sign Up</h2>
 			<form
 				hx-post="/signup"
@@ -12,18 +12,18 @@ templ SignupForm() {
 			>
 				<div class="mb-4">
 					<label class="mb-2 block text-sm font-bold text-gray-700" for="email">Email</label>
-					<input class="w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow" type="email" id="email" name="email" placeholder="steve@minecraft.net" required/>
+					<input class="w-full appearance-none rounded-sm border px-3 py-2 leading-tight text-gray-700 shadow-sm" type="email" id="email" name="email" placeholder="steve@minecraft.net" required/>
 				</div>
 				<div class="mb-6">
 					<label class="mb-2 block text-sm font-bold text-gray-700" for="password">Password</label>
-					<input class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none" type="password" id="password" name="password" placeholder="********" required/>
+					<input class="focus:shadow-outline w-full appearance-none rounded-sm border px-3 py-2 leading-tight text-gray-700 shadow-sm focus:outline-hidden" type="password" id="password" name="password" placeholder="********" required/>
 				</div>
 				<div class="mb-6">
 					<label class="mb-2 block text-sm font-bold text-gray-700" for="password-confirm">Confirm password</label>
-					<input class="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none" type="password" id="password-confirm" name="password-confirm" placeholder="********" required/>
+					<input class="focus:shadow-outline w-full appearance-none rounded-sm border px-3 py-2 leading-tight text-gray-700 shadow-sm focus:outline-hidden" type="password" id="password-confirm" name="password-confirm" placeholder="********" required/>
 				</div>
 				<div class="mb-6 flex justify-center">
-					<button class="w-48 rounded bg-primary px-4 py-2 font-bold text-white transition-all duration-200 ease-in-out hover:scale-105 hover:underline" type="submit">
+					<button class="w-48 rounded-sm bg-primary px-4 py-2 font-bold text-white transition-all duration-200 ease-in-out hover:scale-105 hover:underline" type="submit">
 						Sign up
 					</button>
 				</div>

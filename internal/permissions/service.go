@@ -96,3 +96,18 @@ func (s *PermissionsService) HasPolicy(
 	}
 	return false, nil
 }
+
+func (s *PermissionsService) GetUserPlan(
+	ctx context.Context,
+	uow transaction.UnitOfWork,
+	userID uuid.UUID,
+) (Plan, error) {
+	user, found, err := s.backend.GetById(ctx, uow, userID)
+	if err != nil {
+		return PlanFree, err
+	}
+	if !found {
+		return PlanFree, ErrUserNotFound
+	}
+	return user.Plan, nil
+}

@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: 20
       - run: |
-          npm install -D tailwindcss
+          npm install tailwindcss @tailwindcss/cli
 
       # check fmt
       - name: check fmt

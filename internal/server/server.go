@@ -33,7 +33,9 @@ func (s *Server) Start() error {
 	chain := middlewares.Chain(reqIdMiddleware, loggerMiddleware)
 	chainWithSession := middlewares.Chain(chain, sessionMiddleware)
 
-	indexHandler := handlers.NewIndexHandler(s.logger.With(slog.String("handler", "IndexHandler")))
+	indexHandler := handlers.NewIndexHandler(
+		s.logger.With(slog.String("handler", "IndexHandler")),
+		s.app.getUserPlanQueryHandler)
 	http.Handle("/", chainWithSession.Middleware(indexHandler))
 
 	loginHandler := handlers.NewLoginHandler(

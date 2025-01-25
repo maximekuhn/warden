@@ -5,3 +5,4 @@
 /warden-db.sqlite3
 /warden-logs.log
 .DS_Store
+/node_modules
