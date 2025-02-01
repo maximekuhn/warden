@@ -32,8 +32,7 @@ func (h *StartMinecraftServerCommandHandler) Handle(
 	uow transaction.UnitOfWork,
 	cmd StartMinecraftServerCommand,
 ) error {
-	h.eventBus.PublishStartServerEvent(async.StartServerEvent{
+	return h.eventBus.PublishStartServerEvent(async.StartServerEvent{
 		ServerID: cmd.ServerID,
 	})
-	return nil
 }

@@ -7,7 +7,9 @@ package async
 //
 // Publish* functions must be non-blocking for the caller.
 type EventBus interface {
-	PublishStartServerEvent(evt StartServerEvent)
+	// A non-nil error indicates that the event could not be published.
+	PublishStartServerEvent(evt StartServerEvent) error
 
-	PublishServerStartedEvent(evt ServerStartedEvent)
+	// A non-nil error indicates that the event could not be published.
+	PublishServerStartedEvent(evt ServerStartedEvent) error
 }
