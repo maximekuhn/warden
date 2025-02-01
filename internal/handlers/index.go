@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/domain/queries"
 	"github.com/maximekuhn/warden/internal/logger"
 	"github.com/maximekuhn/warden/internal/middlewares"
-	"github.com/maximekuhn/warden/internal/queries"
 	"github.com/maximekuhn/warden/internal/ui/pages"
 )
 

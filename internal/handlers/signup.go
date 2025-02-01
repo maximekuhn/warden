@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/maximekuhn/warden/internal/auth"
-	"github.com/maximekuhn/warden/internal/commands"
+	"github.com/maximekuhn/warden/internal/domain/commands"
 	"github.com/maximekuhn/warden/internal/handlers/handlerutils"
 	"github.com/maximekuhn/warden/internal/logger"
 	"github.com/maximekuhn/warden/internal/middlewares"
