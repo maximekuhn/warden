@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/maximekuhn/warden/internal/entities"
+	"github.com/maximekuhn/warden/internal/domain/entities"
 	"github.com/maximekuhn/warden/internal/repositories"
 	"github.com/maximekuhn/warden/internal/services"
 	"github.com/maximekuhn/warden/internal/transaction"

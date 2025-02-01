@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/maximekuhn/warden/internal/entities"
+	"github.com/maximekuhn/warden/internal/domain/entities"
 	"github.com/maximekuhn/warden/internal/transaction"
 )
 

@@ -9,6 +9,11 @@ import (
 	"github.com/maximekuhn/warden/internal/valueobjects"
 )
 
+// PortAllocator is a port allocator backed by a list of open ports, provided
+// when the service is created.
+//
+// Once all open ports are allocated, the service is no longer able to provide
+// one.
 type PortAllocator struct {
 	repository repositories.PortRepository
 	openPorts  []int16
