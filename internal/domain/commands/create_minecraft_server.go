@@ -40,7 +40,9 @@ func (h *CreateMinecraftServerCommandHandler) Handle(
 	cmd CreateMinecraftServerCommand,
 ) error {
 	uow := h.uowProvider.Provide()
-	uow.Begin(ctx)
+	if err := uow.Begin(ctx); err != nil {
+		return err
+	}
 
 	serverID := valueobjects.NewMinecraftServerID()
 	_, err := h.portAllocator.AllocatePort(ctx, uow, serverID)
