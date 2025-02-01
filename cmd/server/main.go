@@ -23,6 +23,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to open log file: %v", err)
 	}
+	defer logFile.Close()
 	logsOutput := io.MultiWriter(os.Stdout, logFile)
 	l := slog.New(slog.NewJSONHandler(logsOutput, nil))
 
