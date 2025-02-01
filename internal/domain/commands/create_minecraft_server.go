@@ -45,7 +45,7 @@ func (h *CreateMinecraftServerCommandHandler) Handle(
 	}
 
 	serverID := valueobjects.NewMinecraftServerID()
-	port, err := h.portAllocator.AllocatePort(ctx, uow, serverID)
+	_, err := h.portAllocator.AllocatePort(ctx, uow, serverID)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,6 @@ func (h *CreateMinecraftServerCommandHandler) Handle(
 		make([]uuid.UUID, 0),
 		cmd.Name,
 		valueobjects.MinecraftServerStatusStopped,
-		port,
 		now,
 		now,
 	)
@@ -70,5 +69,4 @@ func (h *CreateMinecraftServerCommandHandler) Handle(
 	}
 
 	return nil
-
 }

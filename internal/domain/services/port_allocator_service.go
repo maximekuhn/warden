@@ -12,7 +12,7 @@ import (
 type PortAllocatorService interface {
 
 	// AllocatePort picks an available port and assign it to the given minecraft
-	// server and returns it. The port will persist across reboots.
+	// server and returns it. The port is immediatly saved and will persist across reboots.
 	//
 	// If no port is available, an error of type ErrNoPortAvailable is returned.
 	//
