@@ -2,33 +2,28 @@ package commands
 
 import (
 	"context"
-	"errors"
 
-	"github.com/google/uuid"
-	"github.com/maximekuhn/warden/internal/async"
-	"github.com/maximekuhn/warden/internal/domain/services"
+	"github.com/maximekuhn/warden/internal/domain/async"
 	"github.com/maximekuhn/warden/internal/domain/transaction"
+	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 )
 
 type StartMinecraftServerCommand struct {
-	ID uuid.UUID
+	ServerID valueobjects.MinecraftServerID
 }
 
 type StartMinecraftServerCommandHandler struct {
-	eventBus        *async.EventBus
-	metadataService *services.MinecraftServerMetadataService
-	uowProvider     transaction.UnitOfWorkProvider
+	eventBus    async.EventBus
+	uowProvider transaction.UnitOfWorkProvider
 }
 
 func NewStartMinecraftServerCommandHandler(
-	eventBus *async.EventBus,
-	metadataService *services.MinecraftServerMetadataService,
+	eventBus async.EventBus,
 	uowProvider transaction.UnitOfWorkProvider,
 ) *StartMinecraftServerCommandHandler {
 	return &StartMinecraftServerCommandHandler{
-		eventBus:        eventBus,
-		metadataService: metadataService,
-		uowProvider:     uowProvider,
+		eventBus:    eventBus,
+		uowProvider: uowProvider,
 	}
 }
 
@@ -37,6 +32,8 @@ func (h *StartMinecraftServerCommandHandler) Handle(
 	uow transaction.UnitOfWork,
 	cmd StartMinecraftServerCommand,
 ) error {
-	h.eventBus.Publish(async.EventStartServer)
-	return errors.New("not yet implemented")
+	h.eventBus.PublishStartServerEvent(async.StartServerEvent{
+		ServerID: cmd.ServerID,
+	})
+	return nil
 }

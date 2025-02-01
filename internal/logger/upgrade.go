@@ -36,5 +36,4 @@ func UpgradeLoggerWithUserId(reqCtx context.Context, key interface{}, parentLogg
 		userID = loggedUser.ID.String()
 	}
 	return parentLogger.With(slog.String("userId", userID))
-
 }
