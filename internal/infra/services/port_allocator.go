@@ -3,9 +3,9 @@ package services
 import (
 	"context"
 
+	"github.com/maximekuhn/warden/internal/domain/repositories"
 	"github.com/maximekuhn/warden/internal/domain/services"
 	"github.com/maximekuhn/warden/internal/domain/valueobjects"
-	"github.com/maximekuhn/warden/internal/repositories"
 	"github.com/maximekuhn/warden/internal/transaction"
 )
 
