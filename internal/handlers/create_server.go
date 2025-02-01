@@ -25,5 +25,4 @@ func (h *CreateServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *CreateServerHandler) get(w http.ResponseWriter, r *http.Request) {
-
 }

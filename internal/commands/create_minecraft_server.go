@@ -2,28 +2,70 @@ package commands
 
 import (
 	"context"
-	"errors"
+	"time"
 
+	"github.com/google/uuid"
+	"github.com/maximekuhn/warden/internal/entities"
+	"github.com/maximekuhn/warden/internal/repositories"
+	"github.com/maximekuhn/warden/internal/services"
 	"github.com/maximekuhn/warden/internal/transaction"
 	"github.com/maximekuhn/warden/internal/valueobjects"
 )
 
 type CreateMinecraftServerCommand struct {
-	Name valueobjects.MinecraftServerName
+	Name  valueobjects.MinecraftServerName
+	Owner uuid.UUID
 }
 
 type CreateMinecraftServerCommandHandler struct {
-	uowProvider transaction.UnitOfWorkProvider
+	portAllocator    services.PortAllocatorService
+	serverRepository repositories.MinecraftServerRepository
+	uowProvider      transaction.UnitOfWorkProvider
 }
 
-func NewCreateMinecraftServerCommandHandler(uowProvider transaction.UnitOfWorkProvider) *CreateMinecraftServerCommandHandler {
-	return &CreateMinecraftServerCommandHandler{uowProvider: uowProvider}
+func NewCreateMinecraftServerCommandHandler(
+	portAllocator services.PortAllocatorService,
+	serverRepository repositories.MinecraftServerRepository,
+	uowProvider transaction.UnitOfWorkProvider,
+) *CreateMinecraftServerCommandHandler {
+	return &CreateMinecraftServerCommandHandler{
+		portAllocator:    portAllocator,
+		serverRepository: serverRepository,
+		uowProvider:      uowProvider,
+	}
 }
 
 func (h *CreateMinecraftServerCommandHandler) Handle(
 	ctx context.Context,
 	cmd CreateMinecraftServerCommand,
 ) error {
-	return errors.New("not yet implemented")
+	uow := h.uowProvider.Provide()
+	uow.Begin(ctx)
+
+	serverID := valueobjects.NewMinecraftServerID()
+	_, err := h.portAllocator.AllocatePort(ctx, uow, serverID)
+	if err != nil {
+		return err
+	}
+
+	now := time.Now()
+	server := entities.NewMinecraftServer(
+		serverID,
+		cmd.Owner,
+		make([]uuid.UUID, 0),
+		cmd.Name,
+		valueobjects.MinecraftServerStatusStopped,
+		now,
+		now,
+	)
+	if err := h.serverRepository.Save(ctx, uow, *server); err != nil {
+		return err
+	}
+
+	if err := uow.Commit(); err != nil {
+		return uow.Rollback()
+	}
+
+	return nil
 
 }

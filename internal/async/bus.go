@@ -3,11 +3,11 @@ package async
 // EventBus is a simple FIFO queue wrapper
 // to pass messages between multiple components
 type EventBus struct {
-	in  <-chan Event
+	in  chan Event
 	out chan<- Event
 }
 
-func NewEventBus(in <-chan Event, out chan<- Event) *EventBus {
+func NewEventBus(in chan Event, out chan<- Event) *EventBus {
 	return &EventBus{
 		in:  in,
 		out: out,
@@ -25,4 +25,8 @@ func (b *EventBus) run() {
 		evt := <-b.in
 		b.out <- evt
 	}
+}
+
+func (b *EventBus) Publish(evt Event) {
+	b.in <- evt
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type MinecraftServer struct {
-	ID         uuid.UUID
+	ID         valueobjects.MinecraftServerID
 	OwnerID    uuid.UUID   // warden account
 	Members    []uuid.UUID // warden account
 	Name       valueobjects.MinecraftServerName
@@ -19,24 +19,21 @@ type MinecraftServer struct {
 }
 
 func NewMinecraftServer(
-	id uuid.UUID,
+	id valueobjects.MinecraftServerID,
 	ownerID uuid.UUID,
 	members []uuid.UUID,
 	name valueobjects.MinecraftServerName,
 	status valueobjects.MinecraftServerStatus,
-	hostConfig valueobjects.MinecraftServerHostConfig,
 	createdAt time.Time,
 	updatedAt time.Time,
-
 ) *MinecraftServer {
 	return &MinecraftServer{
-		ID:         id,
-		OwnerID:    ownerID,
-		Members:    members,
-		Name:       name,
-		Status:     status,
-		HostConfig: hostConfig,
-		CreatedAt:  createdAt,
-		UpdatedAt:  updatedAt,
+		ID:        id,
+		OwnerID:   ownerID,
+		Members:   members,
+		Name:      name,
+		Status:    status,
+		CreatedAt: createdAt,
+		UpdatedAt: updatedAt,
 	}
 }
