@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/logger"
-	"github.com/maximekuhn/warden/internal/transaction"
 )
 
 type LoggedUserContextKey string

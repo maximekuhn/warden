@@ -6,9 +6,9 @@ import (
 	"github.com/maximekuhn/warden/internal/auth"
 	"github.com/maximekuhn/warden/internal/domain/commands"
 	"github.com/maximekuhn/warden/internal/domain/queries"
+	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/infra/db/sqlite"
 	"github.com/maximekuhn/warden/internal/permissions"
-	"github.com/maximekuhn/warden/internal/transaction"
 )
 
 type application struct {

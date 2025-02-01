@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/maximekuhn/warden/internal/auth"
-	"github.com/maximekuhn/warden/internal/transaction"
+	"github.com/maximekuhn/warden/internal/domain/transaction"
 )
 
 type PermissionsService struct {

@@ -8,8 +8,8 @@ import (
 	"github.com/maximekuhn/warden/internal/domain/entities"
 	"github.com/maximekuhn/warden/internal/domain/repositories"
 	"github.com/maximekuhn/warden/internal/domain/services"
+	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/domain/valueobjects"
-	"github.com/maximekuhn/warden/internal/transaction"
 )
 
 type CreateMinecraftServerCommand struct {

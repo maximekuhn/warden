@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/maximekuhn/warden/internal/async"
 	"github.com/maximekuhn/warden/internal/domain/services"
-	"github.com/maximekuhn/warden/internal/transaction"
+	"github.com/maximekuhn/warden/internal/domain/transaction"
 )
 
 type StartMinecraftServerCommand struct {

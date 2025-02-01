@@ -5,8 +5,8 @@ import (
 
 	"github.com/maximekuhn/warden/internal/domain/repositories"
 	"github.com/maximekuhn/warden/internal/domain/services"
+	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/domain/valueobjects"
-	"github.com/maximekuhn/warden/internal/transaction"
 )
 
 // PortAllocator is a port allocator backed by a list of open ports, provided

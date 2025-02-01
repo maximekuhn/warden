@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/permissions"
-	"github.com/maximekuhn/warden/internal/transaction"
 )
 
 type SqlitePermissionsBackend struct {

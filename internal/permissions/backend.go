@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/maximekuhn/warden/internal/transaction"
+	"github.com/maximekuhn/warden/internal/domain/transaction"
 )
 
 // Backend represents whatever is used to store user permissions and related

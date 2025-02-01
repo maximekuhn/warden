@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/maximekuhn/warden/internal/transaction"
+	"github.com/maximekuhn/warden/internal/domain/transaction"
 )
 
 type SqlUnitOfWork struct {

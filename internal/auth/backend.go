@@ -3,8 +3,8 @@ package auth
 import (
 	"context"
 
+	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/domain/valueobjects"
-	"github.com/maximekuhn/warden/internal/transaction"
 )
 
 // Backend represents whatever is used to store users information.

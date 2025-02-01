@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/maximekuhn/warden/internal/domain/entities"
-	"github.com/maximekuhn/warden/internal/transaction"
+	"github.com/maximekuhn/warden/internal/domain/transaction"
 )
 
 type MinecraftServerRepository interface {
