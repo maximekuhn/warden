@@ -6,12 +6,12 @@ import (
 	"net/http"
 
 	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 	"github.com/maximekuhn/warden/internal/logger"
 	"github.com/maximekuhn/warden/internal/middlewares"
 	"github.com/maximekuhn/warden/internal/transaction"
 	"github.com/maximekuhn/warden/internal/ui/components/errors"
 	"github.com/maximekuhn/warden/internal/ui/pages"
-	"github.com/maximekuhn/warden/internal/valueobjects"
 )
 
 type LoginHandler struct {

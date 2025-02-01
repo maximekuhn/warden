@@ -3,8 +3,8 @@ package services
 import (
 	"context"
 
+	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 	"github.com/maximekuhn/warden/internal/transaction"
-	"github.com/maximekuhn/warden/internal/valueobjects"
 )
 
 // PortAllocatorService is a service to assign and persist ports for

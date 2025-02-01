@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 	"github.com/maximekuhn/warden/internal/permissions"
 	"github.com/maximekuhn/warden/internal/transaction"
-	"github.com/maximekuhn/warden/internal/valueobjects"
 )
 
 type CreateUserCommand struct {

@@ -9,8 +9,8 @@ import (
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 	"github.com/maximekuhn/warden/internal/transaction"
-	"github.com/maximekuhn/warden/internal/valueobjects"
 )
 
 func createTmpDb() *sql.DB {

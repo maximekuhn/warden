@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/maximekuhn/warden/internal/valueobjects"
+	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 )
 
 // User represents data used to authenticate a user.

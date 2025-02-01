@@ -3,10 +3,10 @@ package services
 import (
 	"context"
 
+	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 	"github.com/maximekuhn/warden/internal/repositories"
 	"github.com/maximekuhn/warden/internal/services"
 	"github.com/maximekuhn/warden/internal/transaction"
-	"github.com/maximekuhn/warden/internal/valueobjects"
 )
 
 // PortAllocator is a port allocator backed by a list of open ports, provided

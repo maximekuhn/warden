@@ -3,8 +3,8 @@ package repositories
 import (
 	"context"
 
+	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 	"github.com/maximekuhn/warden/internal/transaction"
-	"github.com/maximekuhn/warden/internal/valueobjects"
 )
 
 type PortRepository interface {

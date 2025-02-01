@@ -10,8 +10,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 	"github.com/maximekuhn/warden/internal/transaction"
-	"github.com/maximekuhn/warden/internal/valueobjects"
 )
 
 // SqliteAuthBackend implements auth.Backend

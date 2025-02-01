@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"github.com/maximekuhn/warden/internal/valueobjects"
+	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 	"golang.org/x/crypto/bcrypt"
 )
 

@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/maximekuhn/warden/internal/auth"
-	"github.com/maximekuhn/warden/internal/valueobjects"
+	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 )
 
 func TestAuthBackendSave(t *testing.T) {
