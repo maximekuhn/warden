@@ -6,9 +6,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/maximekuhn/warden/internal/domain/entities"
+	"github.com/maximekuhn/warden/internal/domain/services"
 	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 	"github.com/maximekuhn/warden/internal/repositories"
-	"github.com/maximekuhn/warden/internal/services"
 	"github.com/maximekuhn/warden/internal/transaction"
 )
 
