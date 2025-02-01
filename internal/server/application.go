@@ -5,7 +5,7 @@ import (
 
 	"github.com/maximekuhn/warden/internal/auth"
 	"github.com/maximekuhn/warden/internal/commands"
-	"github.com/maximekuhn/warden/internal/db/sqlite"
+	"github.com/maximekuhn/warden/internal/infra/db/sqlite"
 	"github.com/maximekuhn/warden/internal/permissions"
 	"github.com/maximekuhn/warden/internal/queries"
 	"github.com/maximekuhn/warden/internal/transaction"

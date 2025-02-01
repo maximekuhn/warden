@@ -9,7 +9,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/maximekuhn/warden/internal/db/sqlite"
+	"github.com/maximekuhn/warden/internal/infra/db/sqlite"
 	"github.com/maximekuhn/warden/internal/server"
 )
 

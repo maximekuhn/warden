@@ -15,6 +15,8 @@ type PortAllocatorService interface {
 	// server and returns it. The port will persist across reboots.
 	//
 	// If no port is available, an error of type ErrNoPortAvailable is returned.
+	//
+	// It is not possible for the same server to have 2 allocated ports.
 	AllocatePort(
 		ctx context.Context,
 		uow transaction.UnitOfWork,

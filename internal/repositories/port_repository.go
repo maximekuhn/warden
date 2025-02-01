@@ -14,4 +14,10 @@ type PortRepository interface {
 		port int16,
 		serverID valueobjects.MinecraftServerID,
 	) error
+
+	GetByServerID(
+		ctx context.Context,
+		uow transaction.UnitOfWork,
+		serverID valueobjects.MinecraftServerID,
+	) (int16, bool, error)
 }
