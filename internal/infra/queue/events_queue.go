@@ -43,9 +43,9 @@ func (q *EventsQueue) StartListeners(
 	go func() {
 		select {
 		case evt := <-q.start:
-			start.Execute(evt)
+			go start.Execute(evt)
 		case evt := <-q.started:
-			started.Execute(evt)
+			go started.Execute(evt)
 		}
 	}()
 }
