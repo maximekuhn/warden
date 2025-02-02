@@ -1,6 +1,7 @@
 package handlerutils
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/maximekuhn/warden/internal/apps/web/ui/components/errors"
@@ -38,7 +39,8 @@ func ToMinecraftServerNameOrReturnErrorBox(w http.ResponseWriter, name string) (
 }
 
 func writeErrorBox(w http.ResponseWriter, errMsg string) {
-	if err := errors.BoxError(errMsg); err != nil {
+	// TODO: get context from request
+	if err := errors.BoxError(errMsg).Render(context.TODO(), w); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
