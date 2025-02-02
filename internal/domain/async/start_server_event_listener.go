@@ -45,6 +45,8 @@ func (l *StartServerEventListener) Execute(evt StartServerEvent) {
 	}
 	logger.Info("successfully started minecraft server")
 
+	// ignore lint for next line (false positive)
+	//nolint:gosimple
 	if err := l.eventBus.PublishServerStartedEvent(ServerStartedEvent{
 		ServerID: evt.ServerID,
 	}); err != nil {
