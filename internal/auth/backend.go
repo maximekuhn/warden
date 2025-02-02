@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 )
@@ -20,6 +21,12 @@ type Backend interface {
 		ctx context.Context,
 		uow transaction.UnitOfWork,
 		email valueobjects.Email,
+	) (*User, bool, error)
+
+	GetByUserID(
+		ctx context.Context,
+		uow transaction.UnitOfWork,
+		userID uuid.UUID,
 	) (*User, bool, error)
 
 	GetBySessionId(

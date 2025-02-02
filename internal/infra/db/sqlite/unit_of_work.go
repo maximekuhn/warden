@@ -51,11 +51,19 @@ func (uow *SqlUnitOfWork) ExecContext(ctx context.Context, query string, args ..
 	}
 	return uow.db.ExecContext(ctx, query, args...)
 }
+
 func (uow *SqlUnitOfWork) QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row {
 	if uow.tx != nil {
 		return uow.tx.QueryRowContext(ctx, query, args...)
 	}
 	return uow.db.QueryRowContext(ctx, query, args...)
+}
+
+func (uow *SqlUnitOfWork) QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
+	if uow.tx != nil {
+		return uow.tx.QueryContext(ctx, query, args...)
+	}
+	return uow.db.QueryContext(ctx, query, args...)
 }
 
 type SqlUnitOfWorkProvider struct {

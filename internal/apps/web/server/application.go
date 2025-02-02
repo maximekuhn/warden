@@ -20,7 +20,8 @@ type application struct {
 	createUserCmdHandler            *commands.CreateUserCommandHandler
 	createMinecraftServerCmdHandler *commands.CreateMinecraftServerCommandHandler
 
-	getUserPlanQueryHandler *queries.GetUserPlanQueryHandler
+	getUserPlanQueryHandler         *queries.GetUserPlanQueryHandler
+	getMinecraftServersQueryHandler *queries.GetMinecraftServersQueryHandler
 }
 
 func newApplication(db *sql.DB) application {
@@ -29,6 +30,8 @@ func newApplication(db *sql.DB) application {
 
 	permBackend := sqlite.NewSqlitePermissionsBackend(db)
 	permService := permissions.NewPermissionsService(permBackend)
+
+	userService := services.NewUserService(permBackend, authBackend)
 
 	portRepository := sqlite.NewSqlitePortRepository(db)
 	minecraftServerRepository := sqlite.NewSqliteMinecraftServerRepository(db)
@@ -39,11 +42,18 @@ func newApplication(db *sql.DB) application {
 	createUserCmdHandler := commands.NewCreateUserCommandHandler(authService, permService, uowProvider)
 	createMinecraftServerCmdHandler := commands.NewCreateMinecraftServerCommandHandler(
 		portAllocatorService,
+		userService,
 		minecraftServerRepository,
 		uowProvider,
 	)
 
 	getUserPlanQueryHandler := queries.NewGetUserPlanQueryHandler(permService, uowProvider)
+	getMinecraftServersQueryHandler := queries.NewGetMinecraftServersQueryHandler(
+		userService,
+		portRepository,
+		minecraftServerRepository,
+		uowProvider,
+	)
 
 	return application{
 		authService:                     authService,
@@ -52,5 +62,6 @@ func newApplication(db *sql.DB) application {
 		createUserCmdHandler:            createUserCmdHandler,
 		createMinecraftServerCmdHandler: createMinecraftServerCmdHandler,
 		getUserPlanQueryHandler:         getUserPlanQueryHandler,
+		getMinecraftServersQueryHandler: getMinecraftServersQueryHandler,
 	}
 }

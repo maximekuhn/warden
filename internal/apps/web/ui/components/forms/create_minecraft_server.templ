@@ -9,6 +9,7 @@ templ CreateMinecraftServerForm() {
 				hx-post="/minecraft-servers"
 				hx-target="#create-mc-server-form-error-container"
 				hx-swap="outerHTML"
+				hx-on::after-request="if (event.detail.xhr.status === 201) location.reload();"
 			>
 				<div class="mb-4">
 					<label class="mb-2 block text-sm font-bold text-gray-700" for="server-name">Server name</label>

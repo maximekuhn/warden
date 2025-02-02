@@ -66,6 +66,7 @@ func migrate(ctx context.Context, tx *sql.Tx) error {
 		}
 	}
 	newVersion := migrationFiles[len(migrationFiles)-1].prefixNumber
+	// TODO: no need to update version if DB was already up to date
 	return updateVersionInMetadataTable(ctx, tx, newVersion)
 }
 

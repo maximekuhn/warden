@@ -60,6 +60,7 @@ func (s *Server) Start() error {
 		s.app.permService,
 		s.app.uowProvider,
 		s.app.createMinecraftServerCmdHandler,
+		s.app.getMinecraftServersQueryHandler,
 	)
 	http.Handle("/minecraft-servers", chainWithSession.Middleware(minecraftServerHandler))
 

@@ -8,8 +8,10 @@ import (
 	"github.com/maximekuhn/warden/internal/apps/web/handlers/handlerutils"
 	"github.com/maximekuhn/warden/internal/apps/web/middlewares"
 	uierrors "github.com/maximekuhn/warden/internal/apps/web/ui/components/errors"
+	"github.com/maximekuhn/warden/internal/apps/web/ui/components/lists"
 	"github.com/maximekuhn/warden/internal/auth"
 	"github.com/maximekuhn/warden/internal/domain/commands"
+	"github.com/maximekuhn/warden/internal/domain/queries"
 	"github.com/maximekuhn/warden/internal/domain/services"
 	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/logger"
@@ -21,6 +23,7 @@ type MinecraftServerHandler struct {
 	ps                              *permissions.PermissionsService
 	uowProvider                     transaction.UnitOfWorkProvider
 	createMinecraftServerCmdHandler *commands.CreateMinecraftServerCommandHandler
+	getMinecraftServersQueryHandler *queries.GetMinecraftServersQueryHandler
 }
 
 func NewMinecraftServerHandler(
@@ -28,18 +31,24 @@ func NewMinecraftServerHandler(
 	ps *permissions.PermissionsService,
 	uowProvider transaction.UnitOfWorkProvider,
 	createMinecraftServerCmdHandler *commands.CreateMinecraftServerCommandHandler,
+	getMinecraftServersQueryHandler *queries.GetMinecraftServersQueryHandler,
 ) *MinecraftServerHandler {
 	return &MinecraftServerHandler{
 		logger:                          l,
 		ps:                              ps,
 		uowProvider:                     uowProvider,
 		createMinecraftServerCmdHandler: createMinecraftServerCmdHandler,
+		getMinecraftServersQueryHandler: getMinecraftServersQueryHandler,
 	}
 }
 
 func (h *MinecraftServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		h.post(w, r)
+		return
+	}
+	if r.Method == http.MethodGet {
+		h.getList(w, r)
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
@@ -97,6 +106,7 @@ func (h *MinecraftServerHandler) post(w http.ResponseWriter, r *http.Request) {
 		h.postHandleError(w, r, err, l)
 		return
 	}
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (h *MinecraftServerHandler) postHandleError(w http.ResponseWriter, r *http.Request, err error, l *slog.Logger) {
@@ -114,4 +124,33 @@ func (h *MinecraftServerHandler) postHandleError(w http.ResponseWriter, r *http.
 		return
 	}
 	w.WriteHeader(http.StatusInternalServerError)
+}
+
+func (h *MinecraftServerHandler) getList(w http.ResponseWriter, r *http.Request) {
+	// upgrade logger and retrieve logged user from request context
+	l := logger.UpgradeLoggerWithRequestId(r.Context(), middlewares.RequestIdKey, h.logger)
+	l = logger.UpgradeLoggerWithUserId(r.Context(), middlewares.LoggedUserKey, l)
+	loggedUser, ok := r.Context().Value(middlewares.LoggedUserKey).(auth.User)
+	if !ok {
+		l.Error("logged user not found in request context")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// query all minecraft servers for the logged user
+	servers, err := h.getMinecraftServersQueryHandler.Handle(r.Context(), queries.GetMinecraftServersQuery{
+		UserID: loggedUser.ID,
+	})
+	if err != nil {
+		l.Error(
+			"failed to retrieve minecraft servers",
+			slog.String("errMsg", err.Error()),
+		)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if err := lists.MinecraftServersList(servers).Render(r.Context(), w); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

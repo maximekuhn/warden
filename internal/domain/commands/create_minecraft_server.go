@@ -10,6 +10,7 @@ import (
 	"github.com/maximekuhn/warden/internal/domain/services"
 	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/domain/valueobjects"
+	"github.com/maximekuhn/warden/internal/permissions"
 )
 
 type CreateMinecraftServerCommand struct {
@@ -19,17 +20,20 @@ type CreateMinecraftServerCommand struct {
 
 type CreateMinecraftServerCommandHandler struct {
 	portAllocator    services.PortAllocatorService
+	userService      services.UserService
 	serverRepository repositories.MinecraftServerRepository
 	uowProvider      transaction.UnitOfWorkProvider
 }
 
 func NewCreateMinecraftServerCommandHandler(
 	portAllocator services.PortAllocatorService,
+	userService services.UserService,
 	serverRepository repositories.MinecraftServerRepository,
 	uowProvider transaction.UnitOfWorkProvider,
 ) *CreateMinecraftServerCommandHandler {
 	return &CreateMinecraftServerCommandHandler{
 		portAllocator:    portAllocator,
+		userService:      userService,
 		serverRepository: serverRepository,
 		uowProvider:      uowProvider,
 	}
@@ -44,12 +48,14 @@ func (h *CreateMinecraftServerCommandHandler) Handle(
 		return err
 	}
 
-	serverID := valueobjects.NewMinecraftServerID()
+	// create a new server ID and try to allocate a port
+	serverID := valueobjects.GenerateMinecraftServerID()
 	_, err := h.portAllocator.AllocatePort(ctx, uow, serverID)
 	if err != nil {
 		return err
 	}
 
+	// persist server
 	now := time.Now()
 	server := entities.NewMinecraftServer(
 		serverID,
@@ -61,6 +67,17 @@ func (h *CreateMinecraftServerCommandHandler) Handle(
 		now,
 	)
 	if err := h.serverRepository.Save(ctx, uow, *server); err != nil {
+		return err
+	}
+
+	// update user roles to include owner as admin for the newly created server
+	if err := h.userService.AddRoleInServer(
+		ctx,
+		uow,
+		cmd.Owner,
+		serverID,
+		permissions.RoleAdmin,
+	); err != nil {
 		return err
 	}
 

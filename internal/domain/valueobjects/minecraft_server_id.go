@@ -6,7 +6,14 @@ type MinecraftServerID struct {
 	val uuid.UUID
 }
 
-func NewMinecraftServerID() MinecraftServerID {
+func NewMinecraftServerID(val uuid.UUID) (MinecraftServerID, error) {
+	// TODO: validation
+	msid := MinecraftServerID{}
+	msid.val = val
+	return msid, nil
+}
+
+func GenerateMinecraftServerID() MinecraftServerID {
 	// no a correct value object, as it should validate the uuid
 	// it will work for now (until a server id provider is created)
 	return MinecraftServerID{

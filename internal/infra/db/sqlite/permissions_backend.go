@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/maximekuhn/warden/internal/domain/transaction"
+	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 	"github.com/maximekuhn/warden/internal/permissions"
 )
 
@@ -31,8 +32,26 @@ func (s *SqlitePermissionsBackend) Save(ctx context.Context, uow transaction.Uni
 	return err
 
 }
+
+func (s *SqlitePermissionsBackend) AddRole(
+	ctx context.Context,
+	uow transaction.UnitOfWork,
+	userID uuid.UUID,
+	serverID valueobjects.MinecraftServerID,
+	role permissions.Role,
+) error {
+	suow := castUnitOfWorkOrPanic(uow)
+
+	query := `
+    INSERT INTO user_role_server (user_id, server_id, user_role)
+    VALUES (?, ?, ?)
+    `
+
+	_, err := suow.ExecContext(ctx, query, userID, serverID.Value(), roleToDb(role))
+	return err
+}
+
 func (s *SqlitePermissionsBackend) GetById(ctx context.Context, uow transaction.UnitOfWork, userID uuid.UUID) (*permissions.User, bool, error) {
-	// TODO: retrieve role from user_role_server table
 	suow := castUnitOfWorkOrPanic(uow)
 
 	query := `
@@ -49,7 +68,35 @@ func (s *SqlitePermissionsBackend) GetById(ctx context.Context, uow transaction.
 		return nil, false, err
 	}
 
-	user := permissions.NewUser(userID, plan, make(map[uuid.UUID]permissions.Role))
+	// note: we could fetch all data in the same query, but no need to optimize this yet
+	queryRoles := `
+    SELECT server_id, user_role
+    FROM user_role_server
+    `
+	rows, err := suow.QueryContext(ctx, queryRoles)
+	if err != nil {
+		return nil, false, err
+	}
+	defer rows.Close()
+
+	roles := make(map[uuid.UUID]permissions.Role)
+	for rows.Next() {
+		var serverID uuid.UUID
+		var dbRole int
+
+		if err := rows.Scan(&serverID, &dbRole); err != nil {
+			return nil, false, err
+		}
+
+		role, err := dbRoleToRole(dbRole)
+		if err != nil {
+			return nil, false, err
+		}
+
+		roles[serverID] = role
+	}
+
+	user := permissions.NewUser(userID, plan, roles)
 	return user, true, nil
 }
 
@@ -72,5 +119,27 @@ func planFromDb(dbPlan int) (permissions.Plan, error) {
 		return permissions.PlanPro, nil
 	default:
 		return permissions.PlanFree, fmt.Errorf("corrupted plan: %d", dbPlan)
+	}
+}
+
+func roleToDb(role permissions.Role) int {
+	switch role {
+	case permissions.RoleViewer:
+		return 1
+	case permissions.RoleAdmin:
+		return 2
+	default:
+		return -1
+	}
+}
+
+func dbRoleToRole(dbRole int) (permissions.Role, error) {
+	switch dbRole {
+	case 1:
+		return permissions.RoleViewer, nil
+	case 2:
+		return permissions.RoleAdmin, nil
+	default:
+		return permissions.RoleViewer, fmt.Errorf("corrupted role: %d", dbRole)
 	}
 }

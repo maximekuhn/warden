@@ -1,0 +1,49 @@
+package lists
+
+import (
+	"github.com/maximekuhn/warden/internal/domain/queries"
+	"github.com/maximekuhn/warden/internal/domain/valueobjects"
+	"github.com/maximekuhn/warden/internal/permissions"
+)
+
+templ MinecraftServersList(servers []queries.MinecraftServerOverview) {
+	<div id="servers-list" class="divide-y">
+		for _, server := range servers {
+			@minecraftServersListItem(server)
+		}
+	</div>
+}
+
+templ minecraftServersListItem(server queries.MinecraftServerOverview) {
+	<div class="py-2">
+		<p class="text-sm font-medium truncate">Server: <span class="font-semibold">{ server.Name.Value() }</span></p>
+		<p class="text-sm text-gray-500 truncate">Owner: { server.Owner.Value() }</p>
+		<p class="text-sm text-gray-500 truncate">
+			Status: 
+			<span>
+				@displayStatus(server.Status)
+			</span>
+		</p>
+		<p class="text-sm text-gray-500 truncate">Role: <span class="font-semibold">{ displayRole(server.LoggedUserRole) }</span></p>
+	</div>
+}
+
+templ displayStatus(status valueobjects.MinecraftServerStatus) {
+	if status == valueobjects.MinecraftServerStatusRunning {
+		<span class="font-semibold text-green-500">Running</span>
+	} else if status == valueobjects.MinecraftServerStatusStopped {
+		<span class="font-semibold text-red-500">Stopped</span>
+	} else {
+		<span class="font-semibold text-gray-500-500">-</span>
+	}
+}
+
+func displayRole(role permissions.Role) string {
+	switch role {
+	case permissions.RoleViewer:
+		return "Viewer"
+	case permissions.RoleAdmin:
+		return "Admin"
+	}
+	return "unknown"
+}

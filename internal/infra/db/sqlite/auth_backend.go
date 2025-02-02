@@ -67,6 +67,19 @@ func (s *SqliteAuthBackend) GetByEmail(
 	return s.getByStringAttribute(ctx, uow, query, email.Value())
 }
 
+func (s *SqliteAuthBackend) GetByUserID(
+	ctx context.Context,
+	uow transaction.UnitOfWork,
+	userID uuid.UUID,
+) (*auth.User, bool, error) {
+	query := `
+    SELECT user_id, email, hashed_password, created_at, session_id, session_expire_date
+    FROM auth
+    WHERE user_id = ?
+    `
+	return s.getByStringAttribute(ctx, uow, query, userID.String())
+}
+
 func (s *SqliteAuthBackend) GetBySessionId(
 	ctx context.Context,
 	uow transaction.UnitOfWork,
