@@ -31,7 +31,7 @@ templ indexBodyChatGPT(userPlan permissions.Plan) {
 				@forms.CreateMinecraftServerForm()
 			}
 			<!-- Invitations List -->
-			<div class="flex-grow overflow-y-auto bg-white shadow-sm rounded-sm p-4">
+			<div class="flex-grow overflow-y-auto bg-white shadow-sm rounded-sm px-8 pb-8 pt-6 mb-4">
 				<h2 class="mb-6 text-left text-2xl font-bold">Invitations</h2>
 				<div id="invitations-list">
 					<div class="flex justify-between items-center py-2 border-b">
@@ -127,7 +127,7 @@ templ indexBodyChatGPT(userPlan permissions.Plan) {
 		</div>
 		<!-- Right Section -->
 		<div class="w-3/4 p-4 border rounded-sm h-full max-h-full border-neutral flex flex-col overflow-y-auto">
-			<div class="bg-white shadow-sm rounded-sm p-4">
+			<div class="bg-white shadow-sm rounded-sm px-8 pb-8 pt-6 mb-4">
 				<h2 class="mb-6 text-left text-2xl font-bold">Manage servers</h2>
 				<div hx-get="/minecraft-servers" hx-target="this" hx-swap="outerHTML" hx-trigger="load"></div>
 			</div>
