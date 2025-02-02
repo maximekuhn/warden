@@ -5,13 +5,13 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/maximekuhn/warden/internal/apps/web/handlers/handlerutils"
+	"github.com/maximekuhn/warden/internal/apps/web/middlewares"
+	uierrors "github.com/maximekuhn/warden/internal/apps/web/ui/components/errors"
+	"github.com/maximekuhn/warden/internal/apps/web/ui/pages"
 	"github.com/maximekuhn/warden/internal/auth"
 	"github.com/maximekuhn/warden/internal/domain/commands"
-	"github.com/maximekuhn/warden/internal/handlers/handlerutils"
 	"github.com/maximekuhn/warden/internal/logger"
-	"github.com/maximekuhn/warden/internal/middlewares"
-	uierrors "github.com/maximekuhn/warden/internal/ui/components/errors"
-	"github.com/maximekuhn/warden/internal/ui/pages"
 )
 
 type SignupHandler struct {

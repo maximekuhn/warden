@@ -1,15 +1,15 @@
 package pages
 
-import "github.com/maximekuhn/warden/internal/ui/components/forms"
+import "github.com/maximekuhn/warden/internal/apps/web/ui/components/forms"
 
-templ Login() {
-	@Page(loginBody())
+templ Signup() {
+	@Page(signupBody())
 }
 
-templ loginBody() {
+templ signupBody() {
 	<div class="w-scren min-h-screen bg-[url(/assets/images/background.jpeg)] bg-cover bg-center">
 		<div class="flex h-screen items-center justify-center">
-			@forms.LoginForm()
+			@forms.SignupForm()
 		</div>
 	</div>
 }

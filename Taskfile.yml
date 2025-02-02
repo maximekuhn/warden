@@ -16,7 +16,7 @@ tasks:
   tailwind:
     internal: true
     cmds:
-      - npx @tailwindcss/cli -i ./internal/ui/assets/css/input.css -o ./internal/ui/assets/css/styles.css
+      - npx @tailwindcss/cli -i ./internal/apps/web/ui/assets/css/input.css -o ./internal/apps/web/ui/assets/css/styles.css
 
   build:
     deps: [templ, tailwind]

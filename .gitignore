@@ -1,6 +1,6 @@
 /bin
 *_templ.go
-/internal/ui/assets/css/styles.css
+/internal/apps/web/ui/assets/css/styles.css
 /tmp
 /warden-db.sqlite3
 /warden-logs.log

@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/maximekuhn/warden/internal/handlers"
-	"github.com/maximekuhn/warden/internal/middlewares"
+	"github.com/maximekuhn/warden/internal/apps/web/handlers"
+	"github.com/maximekuhn/warden/internal/apps/web/middlewares"
 )
 
 type Server struct {
@@ -20,7 +20,7 @@ func NewServer(l *slog.Logger, db *sql.DB) *Server {
 }
 
 func (s *Server) Start() error {
-	fs := http.FileServer(http.Dir("internal/ui/assets/"))
+	fs := http.FileServer(http.Dir("internal/apps/web/ui/assets/"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
 
 	reqIdMiddleware := middlewares.NewRequestIdMiddleware()

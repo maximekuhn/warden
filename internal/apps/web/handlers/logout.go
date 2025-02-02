@@ -4,10 +4,10 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/maximekuhn/warden/internal/apps/web/middlewares"
 	"github.com/maximekuhn/warden/internal/auth"
 	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/logger"
-	"github.com/maximekuhn/warden/internal/middlewares"
 )
 
 type LogoutHandler struct {

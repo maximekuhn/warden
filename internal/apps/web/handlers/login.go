@@ -5,13 +5,13 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/maximekuhn/warden/internal/apps/web/middlewares"
+	"github.com/maximekuhn/warden/internal/apps/web/ui/components/errors"
+	"github.com/maximekuhn/warden/internal/apps/web/ui/pages"
 	"github.com/maximekuhn/warden/internal/auth"
 	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 	"github.com/maximekuhn/warden/internal/logger"
-	"github.com/maximekuhn/warden/internal/middlewares"
-	"github.com/maximekuhn/warden/internal/ui/components/errors"
-	"github.com/maximekuhn/warden/internal/ui/pages"
 )
 
 type LoginHandler struct {

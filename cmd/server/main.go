@@ -9,8 +9,8 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/maximekuhn/warden/internal/apps/web/server"
 	"github.com/maximekuhn/warden/internal/infra/db/sqlite"
-	"github.com/maximekuhn/warden/internal/server"
 )
 
 //go:embed banner.txt

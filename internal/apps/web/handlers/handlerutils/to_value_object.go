@@ -3,8 +3,8 @@ package handlerutils
 import (
 	"net/http"
 
+	"github.com/maximekuhn/warden/internal/apps/web/ui/components/errors"
 	"github.com/maximekuhn/warden/internal/domain/valueobjects"
-	"github.com/maximekuhn/warden/internal/ui/components/errors"
 )
 
 func ToEmailOrReturnErrorBox(w http.ResponseWriter, emailStr string) (valueobjects.Email, error) {
