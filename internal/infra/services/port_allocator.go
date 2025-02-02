@@ -27,7 +27,7 @@ func NewPortAllocator(
 ) *PortAllocator {
 	return &PortAllocator{
 		repository: repository,
-		openPorts:  []int16{},
+		openPorts:  openPorts,
 	}
 }
 
