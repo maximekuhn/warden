@@ -27,6 +27,16 @@ func ToPasswordOrReturnErrorBox(w http.ResponseWriter, passwordStr string) (valu
 	return password, nil
 }
 
+func ToMinecraftServerNameOrReturnErrorBox(w http.ResponseWriter, name string) (valueobjects.MinecraftServerName, error) {
+	serverName, err := valueobjects.NewMinecraftServerName(name)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		writeErrorBox(w, err.Error())
+		return valueobjects.MinecraftServerName{}, err
+	}
+	return serverName, nil
+}
+
 func writeErrorBox(w http.ResponseWriter, errMsg string) {
 	if err := errors.BoxError(errMsg); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

@@ -8,6 +8,7 @@ import (
 	"github.com/maximekuhn/warden/internal/domain/queries"
 	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/infra/db/sqlite"
+	"github.com/maximekuhn/warden/internal/infra/services"
 	"github.com/maximekuhn/warden/internal/permissions"
 )
 
@@ -16,7 +17,8 @@ type application struct {
 	permService *permissions.PermissionsService
 	uowProvider transaction.UnitOfWorkProvider
 
-	createUserCmdHandler *commands.CreateUserCommandHandler
+	createUserCmdHandler            *commands.CreateUserCommandHandler
+	createMinecraftServerCmdHandler *commands.CreateMinecraftServerCommandHandler
 
 	getUserPlanQueryHandler *queries.GetUserPlanQueryHandler
 }
@@ -28,17 +30,27 @@ func newApplication(db *sql.DB) application {
 	permBackend := sqlite.NewSqlitePermissionsBackend(db)
 	permService := permissions.NewPermissionsService(permBackend)
 
+	portRepository := sqlite.NewSqlitePortRepository(db)
+	minecraftServerRepository := sqlite.NewSqliteMinecraftServerRepository(db)
+	portAllocatorService := services.NewPortAllocator(portRepository, []int16{25565})
+
 	uowProvider := sqlite.NewSqlUnitOfWorkProvider(db)
 
 	createUserCmdHandler := commands.NewCreateUserCommandHandler(authService, permService, uowProvider)
+	createMinecraftServerCmdHandler := commands.NewCreateMinecraftServerCommandHandler(
+		portAllocatorService,
+		minecraftServerRepository,
+		uowProvider,
+	)
 
 	getUserPlanQueryHandler := queries.NewGetUserPlanQueryHandler(permService, uowProvider)
 
 	return application{
-		authService:             authService,
-		permService:             permService,
-		uowProvider:             uowProvider,
-		createUserCmdHandler:    createUserCmdHandler,
-		getUserPlanQueryHandler: getUserPlanQueryHandler,
+		authService:                     authService,
+		permService:                     permService,
+		uowProvider:                     uowProvider,
+		createUserCmdHandler:            createUserCmdHandler,
+		createMinecraftServerCmdHandler: createMinecraftServerCmdHandler,
+		getUserPlanQueryHandler:         getUserPlanQueryHandler,
 	}
 }
