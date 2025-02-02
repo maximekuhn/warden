@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 
+	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 )
 
@@ -11,6 +12,7 @@ import (
 type ContainerManagementService interface {
 	StartMinecraftServer(
 		ctx context.Context,
+		uow transaction.UnitOfWork,
 		serverID valueobjects.MinecraftServerID,
 	) error
 }
