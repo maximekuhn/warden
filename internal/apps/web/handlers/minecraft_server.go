@@ -1,13 +1,16 @@
 package handlers
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 
 	"github.com/maximekuhn/warden/internal/apps/web/handlers/handlerutils"
 	"github.com/maximekuhn/warden/internal/apps/web/middlewares"
+	uierrors "github.com/maximekuhn/warden/internal/apps/web/ui/components/errors"
 	"github.com/maximekuhn/warden/internal/auth"
 	"github.com/maximekuhn/warden/internal/domain/commands"
+	"github.com/maximekuhn/warden/internal/domain/services"
 	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/logger"
 	"github.com/maximekuhn/warden/internal/permissions"
@@ -70,7 +73,6 @@ func (h *MinecraftServerHandler) post(w http.ResponseWriter, r *http.Request) {
 		permissions.PolicyCreateServer,
 	)
 	if err != nil {
-		// TODO
 		l.Error(
 			"failed to retrieve logged user policy",
 			slog.String("errMsg", err.Error()),
@@ -79,7 +81,6 @@ func (h *MinecraftServerHandler) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !hasPerm {
-		// TODO
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -93,7 +94,24 @@ func (h *MinecraftServerHandler) post(w http.ResponseWriter, r *http.Request) {
 			"failed to create minecraft server",
 			slog.String("errMsg", err.Error()),
 		)
-		w.WriteHeader(http.StatusInternalServerError)
+		h.postHandleError(w, r, err, l)
 		return
 	}
+}
+
+func (h *MinecraftServerHandler) postHandleError(w http.ResponseWriter, r *http.Request, err error, l *slog.Logger) {
+	l.Error(
+		"failed to create minecraft server",
+		slog.String("errMsg", err.Error()),
+	)
+
+	if errors.Is(err, services.ErrNoPortAvailable) {
+		errMsg := "no port available, please contact system administrator"
+		w.WriteHeader(http.StatusConflict)
+		if err := uierrors.BoxError(errMsg).Render(r.Context(), w); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		return
+	}
+	w.WriteHeader(http.StatusInternalServerError)
 }
