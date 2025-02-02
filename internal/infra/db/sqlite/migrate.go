@@ -48,11 +48,14 @@ func migrate(ctx context.Context, tx *sql.Tx) error {
 		return err
 	}
 
+	applied := 0
 	for _, mf := range migrationFiles {
 		if mf.prefixNumber <= currentVerNum {
 			// migration already applied
 			continue
 		}
+
+		applied++
 
 		path := filepath.Join("migrations", mf.filename)
 		sqlBytes, err := migrations.ReadFile(path)
@@ -66,7 +69,9 @@ func migrate(ctx context.Context, tx *sql.Tx) error {
 		}
 	}
 	newVersion := migrationFiles[len(migrationFiles)-1].prefixNumber
-	// TODO: no need to update version if DB was already up to date
+	if applied == 0 {
+		return nil
+	}
 	return updateVersionInMetadataTable(ctx, tx, newVersion)
 }
 
