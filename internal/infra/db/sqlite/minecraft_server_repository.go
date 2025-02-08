@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -77,6 +78,38 @@ func (s *SqliteMinecraftServerRepository) GetAllForUser(
 	}
 
 	return servers, nil
+}
+
+func (s *SqliteMinecraftServerRepository) Update(
+	ctx context.Context,
+	uow transaction.UnitOfWork,
+	old, new entities.MinecraftServer,
+) error {
+	suow := castUnitOfWorkOrPanic(uow)
+
+	if old.ID != new.ID {
+		return errors.New("old and new have different IDs.. wtf!!")
+	}
+
+	// TODO: check other fields (Updated at !!), not only status
+	if old.Status == new.Status {
+		return errors.New("nothing to update (only checked status field)")
+	}
+	query := `
+    UPDATE minecraft_server SET status = ? WHERE id = ?
+    `
+	res, err := suow.ExecContext(ctx, query, msStatusToSqlite(new.Status), new.ID)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected != 1 {
+		return errors.New("sqlite: update did not update any row")
+	}
+	return nil
 }
 
 func convertMinecraftServerRow(rows *sql.Rows) (*entities.MinecraftServer, error) {

@@ -22,4 +22,10 @@ type MinecraftServerRepository interface {
 		uow transaction.UnitOfWork,
 		userID uuid.UUID,
 	) ([]entities.MinecraftServer, error)
+
+	Update(
+		ctx context.Context,
+		uow transaction.UnitOfWork,
+		old, new entities.MinecraftServer,
+	) error
 }

@@ -18,7 +18,8 @@ type application struct {
 	permService *permissions.PermissionsService
 	uowProvider transaction.UnitOfWorkProvider
 
-	containerManagementService services.DockerContainerManagementService
+	containerManagementService   *services.DockerContainerManagementService
+	minecraftServerStatusService *services.MinecraftServerStatusService
 
 	createUserCmdHandler            *commands.CreateUserCommandHandler
 	createMinecraftServerCmdHandler *commands.CreateMinecraftServerCommandHandler
@@ -39,6 +40,7 @@ func newApplication(db *sql.DB, conf *Config) (application, error) {
 	portRepository := sqlite.NewSqlitePortRepository(db)
 	minecraftServerRepository := sqlite.NewSqliteMinecraftServerRepository(db)
 	portAllocatorService := services.NewPortAllocator(portRepository, conf.MinecraftServers.PortAllocation.Ports)
+	minecraftServerStatusService := services.NewMinecraftServerStatusService(minecraftServerRepository)
 
 	// create docker container management service and checks if mc server image is
 	// already built. If not, return an error.
@@ -78,7 +80,8 @@ func newApplication(db *sql.DB, conf *Config) (application, error) {
 		authService:                     authService,
 		permService:                     permService,
 		uowProvider:                     uowProvider,
-		containerManagementService:      *dockerContainerMngmtService,
+		containerManagementService:      dockerContainerMngmtService,
+		minecraftServerStatusService:    minecraftServerStatusService,
 		createUserCmdHandler:            createUserCmdHandler,
 		createMinecraftServerCmdHandler: createMinecraftServerCmdHandler,
 		getUserPlanQueryHandler:         getUserPlanQueryHandler,

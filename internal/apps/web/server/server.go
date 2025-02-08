@@ -81,12 +81,12 @@ func (s *Server) startEventsQueue() {
 	startServerListener := async.NewStartServerEventListener(
 		s.logger.With("listener", "StartServerEventListener"),
 		s.app.uowProvider,
-		&s.app.containerManagementService,
+		s.app.containerManagementService,
 		eventsQueue,
 	)
 	serverStartedListener := async.NewServerStartedEventListener(
 		s.logger.With("listener", "ServerStartedEventListener"),
-		nil,
+		s.app.minecraftServerStatusService,
 		s.app.uowProvider,
 	)
 	eventsQueue.StartListeners(startServerListener, serverStartedListener)
