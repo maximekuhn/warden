@@ -14,9 +14,9 @@ type Server struct {
 	app    application
 }
 
-func NewServer(l *slog.Logger, db *sql.DB, config *Config) *Server {
-	app := newApplication(db, config)
-	return &Server{logger: l, app: app}
+func NewServer(l *slog.Logger, db *sql.DB, config *Config) (*Server, error) {
+	app, err := newApplication(db, config)
+	return &Server{logger: l, app: app}, err
 }
 
 func (s *Server) Start() error {

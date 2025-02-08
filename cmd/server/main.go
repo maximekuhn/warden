@@ -32,7 +32,10 @@ func main() {
 
 	config := parseConfig()
 
-	s := server.NewServer(l, db, config)
+	s, err := server.NewServer(l, db, config)
+	if err != nil {
+		log.Fatalf("Could not create server: %s\n", err)
+	}
 	log.Fatal(s.Start())
 }
 

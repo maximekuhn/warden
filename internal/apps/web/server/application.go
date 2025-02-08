@@ -2,6 +2,7 @@ package server
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/maximekuhn/warden/internal/auth"
 	"github.com/maximekuhn/warden/internal/domain/commands"
@@ -24,7 +25,7 @@ type application struct {
 	getMinecraftServersQueryHandler *queries.GetMinecraftServersQueryHandler
 }
 
-func newApplication(db *sql.DB, conf *Config) application {
+func newApplication(db *sql.DB, conf *Config) (application, error) {
 	authBackend := sqlite.NewSqliteAuthBackend(db)
 	authService := auth.NewAuthService(authBackend)
 
@@ -37,8 +38,23 @@ func newApplication(db *sql.DB, conf *Config) application {
 	minecraftServerRepository := sqlite.NewSqliteMinecraftServerRepository(db)
 	portAllocatorService := services.NewPortAllocator(portRepository, conf.MinecraftServers.PortAllocation.Ports)
 
+	// create docker container management service and checks if mc server image is
+	// already built. If not, return an error.
+	dockerContainerMngmtService, err := services.NewDockerContainerManagementService()
+	if err != nil {
+		return application{}, err
+	}
+	imageExists, err := dockerContainerMngmtService.EnsureMinecraftServerImageExists()
+	if err != nil {
+		return application{}, err
+	}
+	if !imageExists {
+		return application{}, errors.New("minecraft server image not found")
+	}
+
 	uowProvider := sqlite.NewSqlUnitOfWorkProvider(db)
 
+	// commands
 	createUserCmdHandler := commands.NewCreateUserCommandHandler(authService, permService, uowProvider)
 	createMinecraftServerCmdHandler := commands.NewCreateMinecraftServerCommandHandler(
 		portAllocatorService,
@@ -47,6 +63,7 @@ func newApplication(db *sql.DB, conf *Config) application {
 		uowProvider,
 	)
 
+	// queries
 	getUserPlanQueryHandler := queries.NewGetUserPlanQueryHandler(permService, uowProvider)
 	getMinecraftServersQueryHandler := queries.NewGetMinecraftServersQueryHandler(
 		userService,
@@ -63,5 +80,5 @@ func newApplication(db *sql.DB, conf *Config) application {
 		createMinecraftServerCmdHandler: createMinecraftServerCmdHandler,
 		getUserPlanQueryHandler:         getUserPlanQueryHandler,
 		getMinecraftServersQueryHandler: getMinecraftServersQueryHandler,
-	}
+	}, nil
 }
