@@ -11,7 +11,7 @@ type PortRepository interface {
 	Save(
 		ctx context.Context,
 		uow transaction.UnitOfWork,
-		port int16,
+		port uint16,
 		serverID valueobjects.MinecraftServerID,
 	) error
 
@@ -19,5 +19,5 @@ type PortRepository interface {
 		ctx context.Context,
 		uow transaction.UnitOfWork,
 		serverID valueobjects.MinecraftServerID,
-	) (int16, bool, error)
+	) (uint16, bool, error)
 }

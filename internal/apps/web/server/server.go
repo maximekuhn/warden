@@ -14,8 +14,8 @@ type Server struct {
 	app    application
 }
 
-func NewServer(l *slog.Logger, db *sql.DB) *Server {
-	app := newApplication(db)
+func NewServer(l *slog.Logger, db *sql.DB, config *Config) *Server {
+	app := newApplication(db, config)
 	return &Server{logger: l, app: app}
 }
 

@@ -22,7 +22,7 @@ func NewSqlitePortRepository(db *sql.DB) *SqlitePortRepository {
 func (s *SqlitePortRepository) Save(
 	ctx context.Context,
 	uow transaction.UnitOfWork,
-	port int16,
+	port uint16,
 	serverID valueobjects.MinecraftServerID,
 ) error {
 	suow := castUnitOfWorkOrPanic(uow)
@@ -38,13 +38,13 @@ func (s *SqlitePortRepository) GetByServerID(
 	ctx context.Context,
 	uow transaction.UnitOfWork,
 	serverID valueobjects.MinecraftServerID,
-) (int16, bool, error) {
+) (uint16, bool, error) {
 	suow := castUnitOfWorkOrPanic(uow)
 
 	query := `
     SELECT port FROM minecraft_server_port WHERE server_id = ?
     `
-	var port int16
+	var port uint16
 	err := suow.QueryRowContext(ctx, query, serverID.Value()).Scan(&port)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

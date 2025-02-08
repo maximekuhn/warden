@@ -24,7 +24,7 @@ type application struct {
 	getMinecraftServersQueryHandler *queries.GetMinecraftServersQueryHandler
 }
 
-func newApplication(db *sql.DB) application {
+func newApplication(db *sql.DB, conf *Config) application {
 	authBackend := sqlite.NewSqliteAuthBackend(db)
 	authService := auth.NewAuthService(authBackend)
 
@@ -35,7 +35,7 @@ func newApplication(db *sql.DB) application {
 
 	portRepository := sqlite.NewSqlitePortRepository(db)
 	minecraftServerRepository := sqlite.NewSqliteMinecraftServerRepository(db)
-	portAllocatorService := services.NewPortAllocator(portRepository, []int16{25565})
+	portAllocatorService := services.NewPortAllocator(portRepository, conf.MinecraftServers.PortAllocation.Ports)
 
 	uowProvider := sqlite.NewSqlUnitOfWorkProvider(db)
 

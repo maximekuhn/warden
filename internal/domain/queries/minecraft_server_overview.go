@@ -11,5 +11,5 @@ type MinecraftServerOverview struct {
 	Status         valueobjects.MinecraftServerStatus
 	Owner          valueobjects.Email
 	LoggedUserRole permissions.Role
-	Port           int16
+	Port           uint16
 }

@@ -18,12 +18,12 @@ import (
 // TODO: once all openPorts are allocated in memory, the allocator is not working anymore
 type PortAllocator struct {
 	repository repositories.PortRepository
-	openPorts  []int16
+	openPorts  []uint16
 }
 
 func NewPortAllocator(
 	repository repositories.PortRepository,
-	openPorts []int16,
+	openPorts []uint16,
 ) *PortAllocator {
 	return &PortAllocator{
 		repository: repository,
@@ -35,7 +35,7 @@ func (pa *PortAllocator) AllocatePort(
 	ctx context.Context,
 	uow transaction.UnitOfWork,
 	serverID valueobjects.MinecraftServerID,
-) (int16, error) {
+) (uint16, error) {
 	_, found, err := pa.repository.GetByServerID(ctx, uow, serverID)
 	if err != nil {
 		return 0, err
@@ -53,8 +53,8 @@ func (pa *PortAllocator) AllocatePort(
 	return port, err
 }
 
-func (pa *PortAllocator) pickFirstAvailable() (int16, error) {
-	const allocatedPort = -1
+func (pa *PortAllocator) pickFirstAvailable() (uint16, error) {
+	const allocatedPort = 0
 
 	idx := -1
 	for i, port := range pa.openPorts {

@@ -21,5 +21,5 @@ type PortAllocatorService interface {
 		ctx context.Context,
 		uow transaction.UnitOfWork,
 		serverID valueobjects.MinecraftServerID,
-	) (int16, error)
+	) (uint16, error)
 }
