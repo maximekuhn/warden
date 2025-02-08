@@ -18,6 +18,8 @@ type application struct {
 	permService *permissions.PermissionsService
 	uowProvider transaction.UnitOfWorkProvider
 
+	containerManagementService services.DockerContainerManagementService
+
 	createUserCmdHandler            *commands.CreateUserCommandHandler
 	createMinecraftServerCmdHandler *commands.CreateMinecraftServerCommandHandler
 
@@ -76,6 +78,7 @@ func newApplication(db *sql.DB, conf *Config) (application, error) {
 		authService:                     authService,
 		permService:                     permService,
 		uowProvider:                     uowProvider,
+		containerManagementService:      *dockerContainerMngmtService,
 		createUserCmdHandler:            createUserCmdHandler,
 		createMinecraftServerCmdHandler: createMinecraftServerCmdHandler,
 		getUserPlanQueryHandler:         getUserPlanQueryHandler,

@@ -7,6 +7,8 @@ import (
 
 	"github.com/maximekuhn/warden/internal/apps/web/handlers"
 	"github.com/maximekuhn/warden/internal/apps/web/middlewares"
+	"github.com/maximekuhn/warden/internal/domain/async"
+	"github.com/maximekuhn/warden/internal/infra/queue"
 )
 
 type Server struct {
@@ -67,5 +69,25 @@ func (s *Server) Start() error {
 	healthHandler := handlers.NewHealthcheckHandler(s.logger.With(slog.String("handler", "HealtchCheckHandler")))
 	http.Handle("/healthcheck", chain.Middleware(healthHandler))
 
+	// start async events queue
+	// this might not be the best place to do it, but it will work for now
+	s.startEventsQueue()
+
 	return http.ListenAndServe(":8787", nil)
+}
+
+func (s *Server) startEventsQueue() {
+	eventsQueue := queue.NewEventsQeue(5, s.logger.With("eventBus", "EventsQueue"))
+	startServerListener := async.NewStartServerEventListener(
+		s.logger.With("listener", "StartServerEventListener"),
+		s.app.uowProvider,
+		&s.app.containerManagementService,
+		eventsQueue,
+	)
+	serverStartedListener := async.NewServerStartedEventListener(
+		s.logger.With("listener", "ServerStartedEventListener"),
+		nil,
+		s.app.uowProvider,
+	)
+	eventsQueue.StartListeners(startServerListener, serverStartedListener)
 }
