@@ -30,7 +30,9 @@ func main() {
 	db := setupDB()
 	defer db.Close()
 
-	s := server.NewServer(l, db)
+	config := parseConfig()
+
+	s := server.NewServer(l, db, config)
 	log.Fatal(s.Start())
 }
 
@@ -51,4 +53,16 @@ func setupDB() *sql.DB {
 		log.Fatalf("Failed to apply migrations: %v", err)
 	}
 	return db
+}
+
+func parseConfig() *server.Config {
+	if len(os.Args) < 3 {
+		log.Fatal("Configuration file path is required as the second argument.")
+	}
+	configFilePath := os.Args[2]
+	conf, err := server.ParseConfigFromFile(configFilePath)
+	if err != nil {
+		log.Fatalf("Failed to parse configuration file: %s", err)
+	}
+	return conf
 }

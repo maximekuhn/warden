@@ -3,7 +3,7 @@ testdata_dir = "testdata"
 tmp_dir = "tmp"
 
 [build]
-  args_bin = ["warden-db.sqlite3"]
+  args_bin = ["warden-db.sqlite3", "config.example.yaml"]
   bin = "./bin/server"
   cmd = "task build"
   delay = 1000
