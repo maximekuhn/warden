@@ -29,7 +29,7 @@ func NewServerStartedEventListener(
 
 func (l *ServerStartedEventListener) Execute(evt ServerStartedEvent) {
 	logger := l.upgradeLogger(evt.ServerID)
-	logger.Info("received server started event")
+	logger.Info("received ServerStartedEvent")
 
 	uow := l.uowProvider.Provide()
 	ctx := context.TODO()

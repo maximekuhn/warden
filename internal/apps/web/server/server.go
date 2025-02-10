@@ -17,7 +17,7 @@ type Server struct {
 }
 
 func NewServer(l *slog.Logger, db *sql.DB, config *Config) (*Server, error) {
-	app, err := newApplication(db, config)
+	app, err := newApplication(db, config, l)
 	return &Server{logger: l, app: app}, err
 }
 
@@ -67,7 +67,7 @@ func (s *Server) Start() error {
 	http.Handle("/minecraft-servers", chainWithSession.Middleware(minecraftServersHandler))
 
 	minecraftServerHandler := handlers.NewMinecraftServerHandler(
-		s.logger.With("handler", "minecraftServerHandler"),
+		s.logger.With("handler", "MinecraftServerHandler"),
 		s.app.startMinecraftServerCmdHandler,
 		s.app.uowProvider,
 		s.app.permService,

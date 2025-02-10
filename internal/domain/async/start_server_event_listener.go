@@ -32,7 +32,7 @@ func NewStartServerEventListener(
 
 func (l *StartServerEventListener) Execute(evt StartServerEvent) {
 	logger := l.upgradeLogger(evt.ServerID)
-	logger.Info("received event to start minecraft server")
+	logger.Info("received StartServerEvent")
 
 	ctx := context.TODO()
 	uow := l.uowProvider.Provide()

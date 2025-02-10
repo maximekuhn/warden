@@ -34,7 +34,11 @@ type application struct {
 	getMinecraftServersQueryHandler *queries.GetMinecraftServersQueryHandler
 }
 
-func newApplication(db *sql.DB, conf *Config) (application, error) {
+func newApplication(
+	db *sql.DB,
+	conf *Config,
+	l *slog.Logger,
+) (application, error) {
 	authBackend := sqlite.NewSqliteAuthBackend(db)
 	authService := auth.NewAuthService(authBackend)
 
@@ -50,7 +54,7 @@ func newApplication(db *sql.DB, conf *Config) (application, error) {
 
 	// create docker container management service and checks if mc server image is
 	// already built. If not, return an error.
-	dockerContainerMngmtService, err := services.NewDockerContainerManagementService()
+	dockerContainerMngmtService, err := services.NewDockerContainerManagementService(portRepository)
 	if err != nil {
 		return application{}, err
 	}
@@ -64,8 +68,7 @@ func newApplication(db *sql.DB, conf *Config) (application, error) {
 
 	uowProvider := sqlite.NewSqlUnitOfWorkProvider(db)
 
-	// FIXME, accept custom logger
-	eventsQueue := queue.NewEventsQeue(5, slog.Default())
+	eventsQueue := queue.NewEventsQeue(5, l.With(slog.Bool("EventBus", true)))
 
 	// commands
 	createUserCmdHandler := commands.NewCreateUserCommandHandler(authService, permService, uowProvider)

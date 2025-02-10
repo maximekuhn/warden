@@ -1,29 +1,39 @@
 package services
 
+import "fmt"
+
 import (
 	"context"
-	"errors"
 	"strings"
 
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
+	"github.com/maximekuhn/warden/internal/domain/repositories"
+	"github.com/maximekuhn/warden/internal/domain/services"
 	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 )
 
-const imageName = "warden-mc"
+const (
+	imageName   = "warden-mc"
+	exposedPort = "25565/tcp"
+)
 
 type DockerContainerManagementService struct {
-	cli *client.Client
+	cli      *client.Client
+	portRepo repositories.PortRepository
 }
 
-func NewDockerContainerManagementService() (*DockerContainerManagementService, error) {
+func NewDockerContainerManagementService(portRepo repositories.PortRepository) (*DockerContainerManagementService, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		return nil, err
 	}
 	return &DockerContainerManagementService{
-		cli: cli,
+		cli:      cli,
+		portRepo: portRepo,
 	}, nil
 }
 
@@ -51,5 +61,39 @@ func (d *DockerContainerManagementService) StartMinecraftServer(
 	uow transaction.UnitOfWork,
 	serverID valueobjects.MinecraftServerID,
 ) error {
-	return errors.New("not yet implemented")
+	serverPort, found, err := d.portRepo.GetByServerID(ctx, uow, serverID)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return services.ErrServerNotFound
+	}
+
+	portBindings := nat.PortMap{
+		nat.Port(exposedPort): []nat.PortBinding{
+			{HostIP: "0.0.0.0", HostPort: fmt.Sprint(serverPort)},
+		},
+	}
+	resp, err := d.cli.ContainerCreate(
+		ctx,
+		&container.Config{
+			Image:        imageName,
+			ExposedPorts: nat.PortSet{nat.Port(exposedPort): struct{}{}},
+		},
+		&container.HostConfig{PortBindings: portBindings},
+		nil,
+		nil,
+		"",
+	)
+	if err != nil {
+		return err
+	}
+
+	if err := d.cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
+		return err
+	}
+
+	// TODO: wait for server to actually start (check logs)
+
+	return nil
 }
