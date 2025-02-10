@@ -70,7 +70,7 @@ func (s *SqliteMinecraftServerRepository) GetAllForUser(
 
 	servers := make([]entities.MinecraftServer, 0)
 	for rows.Next() {
-		server, err := convertMinecraftServerRow(rows)
+		server, err := convertMinecraftServerRows(rows)
 		if err != nil {
 			return servers, nil
 		}
@@ -92,13 +92,20 @@ func (s *SqliteMinecraftServerRepository) Update(
 	}
 
 	// TODO: check other fields (Updated at !!), not only status
+	// TODO: remove this check, it's not the db scope
 	if old.Status == new.Status {
 		return errors.New("nothing to update (only checked status field)")
 	}
 	query := `
-    UPDATE minecraft_server SET status = ? WHERE id = ?
+    UPDATE minecraft_server SET status = ?, updated_at = ? WHERE id = ?
     `
-	res, err := suow.ExecContext(ctx, query, msStatusToSqlite(new.Status), new.ID)
+	res, err := suow.ExecContext(
+		ctx,
+		query,
+		msStatusToSqlite(new.Status),
+		new.UpdatedAt,
+		new.ID.Value(),
+	)
 	if err != nil {
 		return err
 	}
@@ -117,10 +124,26 @@ func (s *SqliteMinecraftServerRepository) GetByID(
 	uow transaction.UnitOfWork,
 	serverID valueobjects.MinecraftServerID,
 ) (*entities.MinecraftServer, bool, error) {
-	return nil, false, errors.New("not yet implemented")
+	// TODO: get members
+	suow := castUnitOfWorkOrPanic(uow)
+
+	query := `
+    SELECT id, owner_id, name, status, created_at, updated_at
+    FROM minecraft_server
+    WHERE id = ?
+    `
+	row := suow.QueryRowContext(ctx, query, serverID.Value())
+	if row.Err() != nil {
+		if errors.Is(sql.ErrNoRows, row.Err()) {
+			return nil, false, nil
+		}
+		return nil, false, row.Err()
+	}
+	srv, err := convertMinecraftServerRow(row)
+	return srv, true, err
 }
 
-func convertMinecraftServerRow(rows *sql.Rows) (*entities.MinecraftServer, error) {
+func convertMinecraftServerRows(rows *sql.Rows) (*entities.MinecraftServer, error) {
 	var id uuid.UUID
 	var ownerID uuid.UUID
 	var name string
@@ -129,6 +152,43 @@ func convertMinecraftServerRow(rows *sql.Rows) (*entities.MinecraftServer, error
 	var updatedAt time.Time
 
 	if err := rows.Scan(&id, &ownerID, &name, &status, &createdAt, &updatedAt); err != nil {
+		return nil, err
+	}
+
+	serverID, err := valueobjects.NewMinecraftServerID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverName, err := valueobjects.NewMinecraftServerName(name)
+	if err != nil {
+		return nil, err
+	}
+
+	serverStatus, err := sqliteStatusToMsStatus(status)
+	if err != nil {
+		return nil, err
+	}
+	return entities.NewMinecraftServer(
+		serverID,
+		ownerID,
+		make([]uuid.UUID, 0),
+		serverName,
+		serverStatus,
+		createdAt,
+		updatedAt,
+	), nil
+}
+
+func convertMinecraftServerRow(row *sql.Row) (*entities.MinecraftServer, error) {
+	var id uuid.UUID
+	var ownerID uuid.UUID
+	var name string
+	var status int
+	var createdAt time.Time
+	var updatedAt time.Time
+
+	if err := row.Scan(&id, &ownerID, &name, &status, &createdAt, &updatedAt); err != nil {
 		return nil, err
 	}
 
