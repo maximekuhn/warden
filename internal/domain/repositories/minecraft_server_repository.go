@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/maximekuhn/warden/internal/domain/entities"
 	"github.com/maximekuhn/warden/internal/domain/transaction"
-	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 )
 
 type MinecraftServerRepository interface {
@@ -29,10 +28,4 @@ type MinecraftServerRepository interface {
 		uow transaction.UnitOfWork,
 		old, new entities.MinecraftServer,
 	) error
-
-	GetByID(
-		ctx context.Context,
-		uow transaction.UnitOfWork,
-		serverID valueobjects.MinecraftServerID,
-	) (*entities.MinecraftServer, bool, error)
 }
