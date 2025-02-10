@@ -16,29 +16,64 @@ templ MinecraftServersList(servers []queries.MinecraftServerOverview, hostname s
 }
 
 templ minecraftServersListItem(server queries.MinecraftServerOverview, hostname string) {
-	<div class="py-2">
-		<p class="text-sm font-medium truncate">Server: <span class="font-semibold">{ server.Name.Value() }</span></p>
-		<p class="text-sm text-gray-500 truncate">Owner: { server.Owner.Value() }</p>
-		<p class="text-sm text-gray-500 truncate">
-			Status: 
-			<span>
-				@displayStatus(server.Status, hostname, server.Port)
-			</span>
-		</p>
-		<p class="text-sm text-gray-500 truncate">Role: <span class="font-semibold">{ displayRole(server.LoggedUserRole) }</span></p>
-		if server.Status != valueobjects.MinecraftServerStatusRunning {
-			<button hx-post={ "/minecraft-servers/" + server.ID.Value().String() }>start</button>
-		}
+	<div class="py-2 flex items-center justify-between gap-4">
+		<div class="flex items-center gap-4">
+			<img src="/assets/images/papermc.webp" alt="PaperMC logo" class="w-16 h-16 rounded-md object-cover"/>
+			<div>
+				<p class="text-xl font-semibold truncate">{ server.Name.Value() }</p>
+				<p class="text-sm text-gray-500 truncate">Owner: { server.Owner.Value() }</p>
+				<p class="text-sm text-gray-500 truncate">
+					Address: 
+					<span class="ml-2 text-xs bg-gray-200 hover:bg-gray-300 px-2 rounded">
+						{ fmt.Sprintf("%s:%d", hostname, server.Port) }
+					</span>
+				</p>
+				<p class="text-sm text-gray-500 truncate">Your role: <span class="font-semibold">{ displayRole(server.LoggedUserRole) }</span></p>
+			</div>
+		</div>
+		<div class="flex flex-col">
+			@displayStatus(server.Status)
+		</div>
+		<div class="flex items-end">
+			<button
+				class="mt-2 flex items-center px-4 py-2 bg-primary text-white rounded-md shadow-md transition transform hover:underline duration-300 hover:scale-105"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-5 w-5 mr-2"
+					viewBox="0 0 24 24"
+					fill="currentColor"
+				>
+					<path d="M19.14 12.936c.04-.303.06-.613.06-.936s-.02-.633-.06-.936l2.037-1.584a.5.5 0 00.12-.61l-1.926-3.338a.5.5 0 00-.57-.19l-2.4.96c-.5-.38-1.04-.7-1.64-.96L14.5 2.18a.5.5 0 00-.43-.35h-3.14a.5.5 0 00-.43.35l-.36 2.44c-.6.26-1.14.58-1.64.96l-2.4-.96a.5.5 0 00-.57.19L2.82 8.99a.5.5 0 00.12.61l2.037 1.584c-.04.303-.06.613-.06.936s.02.633.06.936l-2.037 1.584a.5.5 0 00-.12.61l1.926 3.338c.11.2.36.27.57.19l2.4-.96c.5.38 1.04.7 1.64.96l.36 2.44c.03.2.22.35.43.35h3.14c.21 0 .4-.15.43-.35l.36-2.44c.6-.26 1.14-.58 1.64-.96l2.4.96c.21.09.46-.01.57-.19l1.926-3.338a.5.5 0 00-.12-.61l-2.037-1.584zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path>
+				</svg>
+				Manage
+			</button>
+		</div>
 	</div>
 }
 
-templ displayStatus(status valueobjects.MinecraftServerStatus, hostname string, port uint16) {
+templ displayStatus(status valueobjects.MinecraftServerStatus) {
 	if status == valueobjects.MinecraftServerStatusRunning {
-		<span class="font-semibold text-green-500">Running</span> on { fmt.Sprintf("%s:%d", hostname, port) }
+		<span class="flex flex-col items-center space-y-1">
+			<!-- Pulsating green dot -->
+			<span class="relative flex h-8 w-8">
+				<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+				<span class="relative inline-flex rounded-full h-8 w-8 bg-green-500"></span>
+			</span>
+			<!-- Running label -->
+			<span class="text-sm font-medium text-green-500">Running</span>
+		</span>
 	} else if status == valueobjects.MinecraftServerStatusStopped {
-		<span class="font-semibold text-red-500">Stopped</span>
+		<span class="flex flex-col items-center space-y-1">
+			<!-- Red static dot -->
+			<span class="flex h-8 w-8">
+				<span class="inline-flex rounded-full h-8 w-8 bg-red-500"></span>
+			</span>
+			<!-- Stopped label -->
+			<span class="text-sm font-medium text-red-500">Stopped</span>
+		</span>
 	} else {
-		<span class="font-semibold text-gray-500-500">-</span>
+		<span class="font-medium text-gray-500">-</span>
 	}
 }
 
