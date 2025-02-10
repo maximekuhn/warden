@@ -112,6 +112,14 @@ func (s *SqliteMinecraftServerRepository) Update(
 	return nil
 }
 
+func (s *SqliteMinecraftServerRepository) GetByID(
+	ctx context.Context,
+	uow transaction.UnitOfWork,
+	serverID valueobjects.MinecraftServerID,
+) (*entities.MinecraftServer, bool, error) {
+	return nil, false, errors.New("not yet implemented")
+}
+
 func convertMinecraftServerRow(rows *sql.Rows) (*entities.MinecraftServer, error) {
 	var id uuid.UUID
 	var ownerID uuid.UUID
