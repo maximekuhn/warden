@@ -57,14 +57,14 @@ func (s *Server) Start() error {
 		s.app.createUserCmdHandler)
 	http.Handle("/signup", chain.Middleware(signupHandler))
 
-	minecraftServerHandler := handlers.NewMinecraftServerHandler(
+	minecraftServersHandler := handlers.NewMinecraftServersHandler(
 		s.logger.With(slog.String("handler", "MinecraftServerHandler")),
 		s.app.permService,
 		s.app.uowProvider,
 		s.app.createMinecraftServerCmdHandler,
 		s.app.getMinecraftServersQueryHandler,
 	)
-	http.Handle("/minecraft-servers", chainWithSession.Middleware(minecraftServerHandler))
+	http.Handle("/minecraft-servers", chainWithSession.Middleware(minecraftServersHandler))
 
 	healthHandler := handlers.NewHealthcheckHandler(s.logger.With(slog.String("handler", "HealtchCheckHandler")))
 	http.Handle("/healthcheck", chain.Middleware(healthHandler))

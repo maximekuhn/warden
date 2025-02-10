@@ -18,7 +18,7 @@ import (
 	"github.com/maximekuhn/warden/internal/permissions"
 )
 
-type MinecraftServerHandler struct {
+type MinecraftServersHandler struct {
 	logger                          *slog.Logger
 	ps                              *permissions.PermissionsService
 	uowProvider                     transaction.UnitOfWorkProvider
@@ -26,14 +26,14 @@ type MinecraftServerHandler struct {
 	getMinecraftServersQueryHandler *queries.GetMinecraftServersQueryHandler
 }
 
-func NewMinecraftServerHandler(
+func NewMinecraftServersHandler(
 	l *slog.Logger,
 	ps *permissions.PermissionsService,
 	uowProvider transaction.UnitOfWorkProvider,
 	createMinecraftServerCmdHandler *commands.CreateMinecraftServerCommandHandler,
 	getMinecraftServersQueryHandler *queries.GetMinecraftServersQueryHandler,
-) *MinecraftServerHandler {
-	return &MinecraftServerHandler{
+) *MinecraftServersHandler {
+	return &MinecraftServersHandler{
 		logger:                          l,
 		ps:                              ps,
 		uowProvider:                     uowProvider,
@@ -42,7 +42,7 @@ func NewMinecraftServerHandler(
 	}
 }
 
-func (h *MinecraftServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *MinecraftServersHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		h.post(w, r)
 		return
@@ -54,7 +54,7 @@ func (h *MinecraftServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusMethodNotAllowed)
 }
 
-func (h *MinecraftServerHandler) post(w http.ResponseWriter, r *http.Request) {
+func (h *MinecraftServersHandler) post(w http.ResponseWriter, r *http.Request) {
 	// upgrade logger and retrieve logged user from request context
 	l := logger.UpgradeLoggerWithRequestId(r.Context(), middlewares.RequestIdKey, h.logger)
 	l = logger.UpgradeLoggerWithUserId(r.Context(), middlewares.LoggedUserKey, l)
@@ -109,7 +109,7 @@ func (h *MinecraftServerHandler) post(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (h *MinecraftServerHandler) postHandleError(w http.ResponseWriter, r *http.Request, err error, l *slog.Logger) {
+func (h *MinecraftServersHandler) postHandleError(w http.ResponseWriter, r *http.Request, err error, l *slog.Logger) {
 	l.Error(
 		"failed to create minecraft server",
 		slog.String("errMsg", err.Error()),
@@ -126,7 +126,7 @@ func (h *MinecraftServerHandler) postHandleError(w http.ResponseWriter, r *http.
 	w.WriteHeader(http.StatusInternalServerError)
 }
 
-func (h *MinecraftServerHandler) getList(w http.ResponseWriter, r *http.Request) {
+func (h *MinecraftServersHandler) getList(w http.ResponseWriter, r *http.Request) {
 	// upgrade logger and retrieve logged user from request context
 	l := logger.UpgradeLoggerWithRequestId(r.Context(), middlewares.RequestIdKey, h.logger)
 	l = logger.UpgradeLoggerWithUserId(r.Context(), middlewares.LoggedUserKey, l)
