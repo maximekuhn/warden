@@ -3,12 +3,15 @@ package server
 import (
 	"database/sql"
 	"errors"
+	"log/slog"
 
 	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/domain/async"
 	"github.com/maximekuhn/warden/internal/domain/commands"
 	"github.com/maximekuhn/warden/internal/domain/queries"
 	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/infra/db/sqlite"
+	"github.com/maximekuhn/warden/internal/infra/queue"
 	"github.com/maximekuhn/warden/internal/infra/services"
 	"github.com/maximekuhn/warden/internal/permissions"
 )
@@ -21,8 +24,11 @@ type application struct {
 	containerManagementService   *services.DockerContainerManagementService
 	minecraftServerStatusService *services.MinecraftServerStatusService
 
+	eventBus async.EventBus
+
 	createUserCmdHandler            *commands.CreateUserCommandHandler
 	createMinecraftServerCmdHandler *commands.CreateMinecraftServerCommandHandler
+	startMinecraftServerCmdHandler  *commands.StartMinecraftServerCommandHandler
 
 	getUserPlanQueryHandler         *queries.GetUserPlanQueryHandler
 	getMinecraftServersQueryHandler *queries.GetMinecraftServersQueryHandler
@@ -58,6 +64,9 @@ func newApplication(db *sql.DB, conf *Config) (application, error) {
 
 	uowProvider := sqlite.NewSqlUnitOfWorkProvider(db)
 
+	// FIXME, accept custom logger
+	eventsQueue := queue.NewEventsQeue(5, slog.Default())
+
 	// commands
 	createUserCmdHandler := commands.NewCreateUserCommandHandler(authService, permService, uowProvider)
 	createMinecraftServerCmdHandler := commands.NewCreateMinecraftServerCommandHandler(
@@ -66,6 +75,7 @@ func newApplication(db *sql.DB, conf *Config) (application, error) {
 		minecraftServerRepository,
 		uowProvider,
 	)
+	startMinecraftServerCmdHandler := commands.NewStartMinecraftServerCommandHandler(eventsQueue, uowProvider)
 
 	// queries
 	getUserPlanQueryHandler := queries.NewGetUserPlanQueryHandler(permService, uowProvider)
@@ -82,8 +92,10 @@ func newApplication(db *sql.DB, conf *Config) (application, error) {
 		uowProvider:                     uowProvider,
 		containerManagementService:      dockerContainerMngmtService,
 		minecraftServerStatusService:    minecraftServerStatusService,
+		eventBus:                        eventsQueue,
 		createUserCmdHandler:            createUserCmdHandler,
 		createMinecraftServerCmdHandler: createMinecraftServerCmdHandler,
+		startMinecraftServerCmdHandler:  startMinecraftServerCmdHandler,
 		getUserPlanQueryHandler:         getUserPlanQueryHandler,
 		getMinecraftServersQueryHandler: getMinecraftServersQueryHandler,
 	}, nil

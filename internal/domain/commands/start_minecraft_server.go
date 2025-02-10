@@ -29,7 +29,6 @@ func NewStartMinecraftServerCommandHandler(
 
 func (h *StartMinecraftServerCommandHandler) Handle(
 	ctx context.Context,
-	uow transaction.UnitOfWork,
 	cmd StartMinecraftServerCommand,
 ) error {
 	return h.eventBus.PublishStartServerEvent(async.StartServerEvent{

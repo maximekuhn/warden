@@ -58,13 +58,21 @@ func (s *Server) Start() error {
 	http.Handle("/signup", chain.Middleware(signupHandler))
 
 	minecraftServersHandler := handlers.NewMinecraftServersHandler(
-		s.logger.With(slog.String("handler", "MinecraftServerHandler")),
+		s.logger.With(slog.String("handler", "MinecraftServersHandler")),
 		s.app.permService,
 		s.app.uowProvider,
 		s.app.createMinecraftServerCmdHandler,
 		s.app.getMinecraftServersQueryHandler,
 	)
 	http.Handle("/minecraft-servers", chainWithSession.Middleware(minecraftServersHandler))
+
+	minecraftServerHandler := handlers.NewMinecraftServerHandler(
+		s.logger.With("handler", "minecraftServerHandler"),
+		s.app.startMinecraftServerCmdHandler,
+		s.app.uowProvider,
+		s.app.permService,
+	)
+	http.Handle("/minecraft-servers/{serverId}", chainWithSession.Middleware(minecraftServerHandler))
 
 	healthHandler := handlers.NewHealthcheckHandler(s.logger.With(slog.String("handler", "HealtchCheckHandler")))
 	http.Handle("/healthcheck", chain.Middleware(healthHandler))
@@ -77,17 +85,17 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) startEventsQueue() {
-	eventsQueue := queue.NewEventsQeue(5, s.logger.With("eventBus", "EventsQueue"))
 	startServerListener := async.NewStartServerEventListener(
 		s.logger.With("listener", "StartServerEventListener"),
 		s.app.uowProvider,
 		s.app.containerManagementService,
-		eventsQueue,
+		s.app.eventBus,
 	)
 	serverStartedListener := async.NewServerStartedEventListener(
 		s.logger.With("listener", "ServerStartedEventListener"),
 		s.app.minecraftServerStatusService,
 		s.app.uowProvider,
 	)
-	eventsQueue.StartListeners(startServerListener, serverStartedListener)
+	q := s.app.eventBus.(*queue.EventsQueue)
+	q.StartListeners(startServerListener, serverStartedListener)
 }

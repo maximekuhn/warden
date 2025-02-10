@@ -25,6 +25,9 @@ templ minecraftServersListItem(server queries.MinecraftServerOverview) {
 			</span>
 		</p>
 		<p class="text-sm text-gray-500 truncate">Role: <span class="font-semibold">{ displayRole(server.LoggedUserRole) }</span></p>
+		if server.Status != valueobjects.MinecraftServerStatusRunning {
+			<button hx-post={ "/minecraft-servers/" + server.ID.Value().String() }>start </button>
+		}
 	</div>
 }
 

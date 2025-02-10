@@ -13,6 +13,14 @@ func NewMinecraftServerID(val uuid.UUID) (MinecraftServerID, error) {
 	return msid, nil
 }
 
+func NewMinecraftServerIDFromString(val string) (MinecraftServerID, error) {
+	id, err := uuid.Parse(val)
+	if err != nil {
+		return MinecraftServerID{}, err
+	}
+	return NewMinecraftServerID(id)
+}
+
 func GenerateMinecraftServerID() MinecraftServerID {
 	// no a correct value object, as it should validate the uuid
 	// it will work for now (until a server id provider is created)
