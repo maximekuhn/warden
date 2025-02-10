@@ -133,12 +133,6 @@ func (s *SqliteMinecraftServerRepository) GetByID(
     WHERE id = ?
     `
 	row := suow.QueryRowContext(ctx, query, serverID.Value())
-	if row.Err() != nil {
-		if errors.Is(sql.ErrNoRows, row.Err()) {
-			return nil, false, nil
-		}
-		return nil, false, row.Err()
-	}
 	srv, err := convertMinecraftServerRow(row)
 	return srv, true, err
 }
