@@ -41,11 +41,13 @@ func (q *EventsQueue) StartListeners(
 	started *async.ServerStartedEventListener,
 ) {
 	go func() {
-		select {
-		case evt := <-q.start:
-			go start.Execute(evt)
-		case evt := <-q.started:
-			go started.Execute(evt)
+		for {
+			select {
+			case evt := <-q.start:
+				go start.Execute(evt)
+			case evt := <-q.started:
+				go started.Execute(evt)
+			}
 		}
 	}()
 }
