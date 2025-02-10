@@ -95,4 +95,5 @@ func (h *MinecraftServerHandler) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	l.Info("successfully started minecraft server")
+	w.WriteHeader(http.StatusAccepted)
 }
