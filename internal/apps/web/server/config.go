@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	MinecraftServers minecraftServers `yaml:"minecraftServers"`
+	Admin            admin            `yaml:"admin"`
 }
 
 type minecraftServers struct {
@@ -19,6 +20,11 @@ type minecraftServers struct {
 type mcServersPortAllocation struct {
 	Strategy string   `yaml:"strategy"`
 	Ports    []uint16 `yaml:"ports"`
+}
+
+type admin struct {
+	Username       string `yaml:"username"`
+	HashedPassword string `yaml:"hashedPassword"`
 }
 
 func ParseConfigFromFile(filepath string) (*Config, error) {

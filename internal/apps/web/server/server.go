@@ -36,6 +36,7 @@ func (s *Server) Start() error {
 		s.logger.With(slog.Bool("SessionMiddleware", true)),
 		*s.app.authService,
 		s.app.uowProvider)
+	adminMiddleware := middlewares.NewAdminMiddleware(s.conf.Admin.Username, s.conf.Admin.HashedPassword)
 
 	chain := middlewares.Chain(reqIdMiddleware, loggerMiddleware)
 	chainWithSession := middlewares.Chain(chain, sessionMiddleware)
@@ -82,6 +83,9 @@ func (s *Server) Start() error {
 
 	healthHandler := handlers.NewHealthcheckHandler(s.logger.With(slog.String("handler", "HealtchCheckHandler")))
 	http.Handle("/healthcheck", chain.Middleware(healthHandler))
+
+	adminHandler := handlers.NewAdminHandler(s.logger.With(slog.String("handler", "AdminHandler")))
+	http.Handle("/admin", adminMiddleware.Middleware(adminHandler))
 
 	// start async events queue
 	// this might not be the best place to do it, but it will work for now
