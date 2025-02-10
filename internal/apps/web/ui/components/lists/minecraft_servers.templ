@@ -1,39 +1,40 @@
 package lists
 
 import (
+	"fmt"
 	"github.com/maximekuhn/warden/internal/domain/queries"
 	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 	"github.com/maximekuhn/warden/internal/permissions"
 )
 
-templ MinecraftServersList(servers []queries.MinecraftServerOverview) {
+templ MinecraftServersList(servers []queries.MinecraftServerOverview, hostname string) {
 	<div id="servers-list" class="divide-y">
 		for _, server := range servers {
-			@minecraftServersListItem(server)
+			@minecraftServersListItem(server, hostname)
 		}
 	</div>
 }
 
-templ minecraftServersListItem(server queries.MinecraftServerOverview) {
+templ minecraftServersListItem(server queries.MinecraftServerOverview, hostname string) {
 	<div class="py-2">
 		<p class="text-sm font-medium truncate">Server: <span class="font-semibold">{ server.Name.Value() }</span></p>
 		<p class="text-sm text-gray-500 truncate">Owner: { server.Owner.Value() }</p>
 		<p class="text-sm text-gray-500 truncate">
 			Status: 
 			<span>
-				@displayStatus(server.Status)
+				@displayStatus(server.Status, hostname, server.Port)
 			</span>
 		</p>
 		<p class="text-sm text-gray-500 truncate">Role: <span class="font-semibold">{ displayRole(server.LoggedUserRole) }</span></p>
 		if server.Status != valueobjects.MinecraftServerStatusRunning {
-			<button hx-post={ "/minecraft-servers/" + server.ID.Value().String() }>start </button>
+			<button hx-post={ "/minecraft-servers/" + server.ID.Value().String() }>start</button>
 		}
 	</div>
 }
 
-templ displayStatus(status valueobjects.MinecraftServerStatus) {
+templ displayStatus(status valueobjects.MinecraftServerStatus, hostname string, port uint16) {
 	if status == valueobjects.MinecraftServerStatusRunning {
-		<span class="font-semibold text-green-500">Running</span>
+		<span class="font-semibold text-green-500">Running</span> on { fmt.Sprintf("%s:%d", hostname, port) }
 	} else if status == valueobjects.MinecraftServerStatusStopped {
 		<span class="font-semibold text-red-500">Stopped</span>
 	} else {

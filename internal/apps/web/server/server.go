@@ -14,11 +14,16 @@ import (
 type Server struct {
 	logger *slog.Logger
 	app    application
+	conf   *Config
 }
 
 func NewServer(l *slog.Logger, db *sql.DB, config *Config) (*Server, error) {
 	app, err := newApplication(db, config, l)
-	return &Server{logger: l, app: app}, err
+	return &Server{
+		logger: l,
+		app:    app,
+		conf:   config,
+	}, err
 }
 
 func (s *Server) Start() error {
@@ -63,6 +68,7 @@ func (s *Server) Start() error {
 		s.app.uowProvider,
 		s.app.createMinecraftServerCmdHandler,
 		s.app.getMinecraftServersQueryHandler,
+		s.conf.MinecraftServers.Hostname,
 	)
 	http.Handle("/minecraft-servers", chainWithSession.Middleware(minecraftServersHandler))
 

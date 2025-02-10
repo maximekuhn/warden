@@ -24,6 +24,7 @@ type MinecraftServersHandler struct {
 	uowProvider                     transaction.UnitOfWorkProvider
 	createMinecraftServerCmdHandler *commands.CreateMinecraftServerCommandHandler
 	getMinecraftServersQueryHandler *queries.GetMinecraftServersQueryHandler
+	hostname                        string
 }
 
 func NewMinecraftServersHandler(
@@ -32,6 +33,7 @@ func NewMinecraftServersHandler(
 	uowProvider transaction.UnitOfWorkProvider,
 	createMinecraftServerCmdHandler *commands.CreateMinecraftServerCommandHandler,
 	getMinecraftServersQueryHandler *queries.GetMinecraftServersQueryHandler,
+	hostname string,
 ) *MinecraftServersHandler {
 	return &MinecraftServersHandler{
 		logger:                          l,
@@ -39,6 +41,7 @@ func NewMinecraftServersHandler(
 		uowProvider:                     uowProvider,
 		createMinecraftServerCmdHandler: createMinecraftServerCmdHandler,
 		getMinecraftServersQueryHandler: getMinecraftServersQueryHandler,
+		hostname:                        hostname,
 	}
 }
 
@@ -149,7 +152,7 @@ func (h *MinecraftServersHandler) getList(w http.ResponseWriter, r *http.Request
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	if err := lists.MinecraftServersList(servers).Render(r.Context(), w); err != nil {
+	if err := lists.MinecraftServersList(servers, h.hostname).Render(r.Context(), w); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
