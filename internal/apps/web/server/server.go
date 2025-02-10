@@ -40,6 +40,7 @@ func (s *Server) Start() error {
 
 	chain := middlewares.Chain(reqIdMiddleware, loggerMiddleware)
 	chainWithSession := middlewares.Chain(chain, sessionMiddleware)
+	chainAdmin := middlewares.Chain(loggerMiddleware, adminMiddleware)
 
 	indexHandler := handlers.NewIndexHandler(
 		s.logger.With(slog.String("handler", "IndexHandler")),
@@ -85,7 +86,14 @@ func (s *Server) Start() error {
 	http.Handle("/healthcheck", chain.Middleware(healthHandler))
 
 	adminHandler := handlers.NewAdminHandler(s.logger.With(slog.String("handler", "AdminHandler")))
-	http.Handle("/admin", adminMiddleware.Middleware(adminHandler))
+	http.Handle("/admin", chainAdmin.Middleware(adminHandler))
+
+	usersHandler := handlers.NewUsersHandler(
+		s.logger.With(slog.String("handler", "UsersHandler")),
+		s.app.getUsersQueryHandler,
+		s.app.updateUserPlanCmdHandler,
+	)
+	http.Handle("/admin/users", chainAdmin.Middleware(usersHandler))
 
 	// start async events queue
 	// this might not be the best place to do it, but it will work for now

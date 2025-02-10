@@ -11,10 +11,10 @@ type AdminHandler struct {
 	logger *slog.Logger
 }
 
-func NewAdminHandler(l *slog.Logger) *AdminHandler {
-	return &AdminHandler{
-		logger: l,
-	}
+func NewAdminHandler(
+	l *slog.Logger,
+) *AdminHandler {
+	return &AdminHandler{logger: l}
 }
 
 func (h *AdminHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

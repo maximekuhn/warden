@@ -1,0 +1,29 @@
+package lists
+
+import (
+	"github.com/maximekuhn/warden/internal/apps/web/ui/components/forms"
+	"github.com/maximekuhn/warden/internal/domain/queries"
+)
+
+templ UsersList(users []queries.UserDetails) {
+	<div id="users-list" class="divide-y">
+		for _, user := range users {
+			@usersListItem(user)
+		}
+	</div>
+}
+
+templ usersListItem(user queries.UserDetails) {
+	<div class="py-4 flex items-center justify-between gap-4 border-b mx-8">
+		<div class="flex items-center gap-4">
+			<img src="/assets/images/steve.jpeg" alt="User avatar" class="w-16 h-16 object-cover"/>
+			<div>
+				<p class="text-sm text-gray-500 truncate">Email: { user.Email.Value() }</p>
+				<p class="text-sm text-gray-500 truncate">Joined: { user.CreatedAt.UTC().Format("Jan 2, 2006 15:04") }</p>
+				<p class="text-sm text-gray-500 truncate">Plan: <span class="font-semibold">{ string(user.Plan) }</span></p>
+				<p class="text-sm text-gray-500 truncate">ID: { user.ID.String() }</p>
+			</div>
+		</div>
+		@forms.UpdateUserPlanForm(user)
+	</div>
+}

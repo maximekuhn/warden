@@ -7,4 +7,5 @@ var (
 	ErrNoPortAvailable               = errors.New("no port available")
 	ErrServerAlreadyHasAllocatedPort = errors.New("server already has an allocated port")
 	ErrServerNotFound                = errors.New("minecraft server not found")
+	ErrUserNotFound                  = errors.New("user not found")
 )

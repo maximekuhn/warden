@@ -1,10 +1,19 @@
 package pages
 
 templ Admin() {
-	@Page(adminBody())
+	@Page(admin())
 }
 
-templ adminBody() {
+templ admin() {
+	<div class="h-screen flex flex-col">
+		@adminNavbar()
+		<div class="flex-1 overflow-auto mt-8 mb-8">
+			@adminBody()
+		</div>
+	</div>
+}
+
+templ adminNavbar() {
 	<nav class="flex items-center justify-between bg-secondary p-4 text-white">
 		<div class="flex items-center">
 			<a href="/">
@@ -13,4 +22,8 @@ templ adminBody() {
 			<span class="text-2xl font-semibold">Warden - Admin</span>
 		</div>
 	</nav>
+}
+
+templ adminBody() {
+	<div hx-get="/admin/users" hx-target="this" hx-swap="outerHTML" hx-trigger="load"></div>
 }

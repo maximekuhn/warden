@@ -1,0 +1,29 @@
+package forms
+
+import (
+	"github.com/maximekuhn/warden/internal/domain/queries"
+	"github.com/maximekuhn/warden/internal/permissions"
+)
+
+var plans []permissions.Plan = []permissions.Plan{permissions.PlanFree, permissions.PlanPro}
+
+templ UpdateUserPlanForm(user queries.UserDetails) {
+	<div class="flex items-center gap-2">
+		<form
+			hx-post="/admin/users"
+			hx-on::after-request="if (event.detail.xhr.status === 200) location.reload();"
+		>
+			<select name="newPlan" class="px-2 py-1 border rounded-md text-sm">
+				for _, plan := range plans {
+					<option value={ string(plan) }>{ string(plan) }</option>
+				}
+			</select>
+			<input type="hidden" name="userID" value={ user.ID.String() }/>
+			<button
+				class="px-4 py-2 bg-primary text-white rounded-md shadow-md transition transform hover:underline duration-300 hover:scale-105"
+			>
+				Update
+			</button>
+		</form>
+	</div>
+}

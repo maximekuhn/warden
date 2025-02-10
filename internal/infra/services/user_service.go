@@ -2,9 +2,13 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/maximekuhn/warden/internal/auth"
+	"github.com/maximekuhn/warden/internal/domain/entities"
+	"github.com/maximekuhn/warden/internal/domain/repositories"
+	"github.com/maximekuhn/warden/internal/domain/services"
 	"github.com/maximekuhn/warden/internal/domain/transaction"
 	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 	"github.com/maximekuhn/warden/internal/permissions"
@@ -13,15 +17,18 @@ import (
 type UserService struct {
 	permBackend permissions.Backend
 	authBackend auth.Backend
+	userRepo    repositories.UserRepository
 }
 
 func NewUserService(
 	permBackend permissions.Backend,
 	authBackend auth.Backend,
+	userRepo repositories.UserRepository,
 ) *UserService {
 	return &UserService{
 		permBackend: permBackend,
 		authBackend: authBackend,
+		userRepo:    userRepo,
 	}
 }
 func (us *UserService) GetUserRoleInServer(
@@ -67,4 +74,31 @@ func (us *UserService) AddRoleInServer(
 	role permissions.Role,
 ) error {
 	return us.permBackend.AddRole(ctx, uow, userID, serverID, role)
+}
+
+func (us *UserService) GetAll(
+	ctx context.Context,
+	uow transaction.UnitOfWork,
+	limit, offset uint,
+) ([]entities.User, error) {
+	return us.userRepo.GetAll(ctx, uow, limit, offset)
+}
+
+func (us *UserService) UpdatePlan(
+	ctx context.Context,
+	uow transaction.UnitOfWork,
+	userID uuid.UUID,
+	newPlan permissions.Plan,
+) error {
+	u, found, err := us.permBackend.GetById(ctx, uow, userID)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return services.ErrUserNotFound
+	}
+	if u.Plan == newPlan {
+		return errors.New("no need to update, plan is the same")
+	}
+	return us.userRepo.UpdatePlan(ctx, uow, userID, newPlan)
 }

@@ -29,9 +29,11 @@ type application struct {
 	createUserCmdHandler            *commands.CreateUserCommandHandler
 	createMinecraftServerCmdHandler *commands.CreateMinecraftServerCommandHandler
 	startMinecraftServerCmdHandler  *commands.StartMinecraftServerCommandHandler
+	updateUserPlanCmdHandler        *commands.UpdateUserPlanCommandHandler
 
 	getUserPlanQueryHandler         *queries.GetUserPlanQueryHandler
 	getMinecraftServersQueryHandler *queries.GetMinecraftServersQueryHandler
+	getUsersQueryHandler            *queries.GetUsersQueryHandler
 }
 
 func newApplication(
@@ -45,7 +47,8 @@ func newApplication(
 	permBackend := sqlite.NewSqlitePermissionsBackend(db)
 	permService := permissions.NewPermissionsService(permBackend)
 
-	userService := services.NewUserService(permBackend, authBackend)
+	userRepository := sqlite.NewSqliteUserRepository(db)
+	userService := services.NewUserService(permBackend, authBackend, userRepository)
 
 	portRepository := sqlite.NewSqlitePortRepository(db)
 	minecraftServerRepository := sqlite.NewSqliteMinecraftServerRepository(db)
@@ -79,6 +82,7 @@ func newApplication(
 		uowProvider,
 	)
 	startMinecraftServerCmdHandler := commands.NewStartMinecraftServerCommandHandler(eventsQueue, uowProvider)
+	updateUserPlanCmdHandler := commands.NewUpdateUserPlanCommandHandler(uowProvider, userService)
 
 	// queries
 	getUserPlanQueryHandler := queries.NewGetUserPlanQueryHandler(permService, uowProvider)
@@ -87,6 +91,11 @@ func newApplication(
 		portRepository,
 		minecraftServerRepository,
 		uowProvider,
+	)
+	getUsersQueryHandler := queries.NewGetUsersQueryHandler(
+		uowProvider,
+		userService,
+		userRepository,
 	)
 
 	return application{
@@ -99,7 +108,9 @@ func newApplication(
 		createUserCmdHandler:            createUserCmdHandler,
 		createMinecraftServerCmdHandler: createMinecraftServerCmdHandler,
 		startMinecraftServerCmdHandler:  startMinecraftServerCmdHandler,
+		updateUserPlanCmdHandler:        updateUserPlanCmdHandler,
 		getUserPlanQueryHandler:         getUserPlanQueryHandler,
 		getMinecraftServersQueryHandler: getMinecraftServersQueryHandler,
+		getUsersQueryHandler:            getUsersQueryHandler,
 	}, nil
 }
