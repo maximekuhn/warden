@@ -10,10 +10,11 @@ import (
 )
 
 type StartServerEventListener struct {
-	logger      *slog.Logger
-	uowProvider transaction.UnitOfWorkProvider
-	cms         services.ContainerManagementService
-	eventBus    EventBus
+	logger                *slog.Logger
+	uowProvider           transaction.UnitOfWorkProvider
+	cms                   services.ContainerManagementService
+	eventBus              EventBus
+	mcServerStatusService services.MinecraftServerStatusService
 }
 
 func NewStartServerEventListener(
@@ -21,12 +22,14 @@ func NewStartServerEventListener(
 	uowProvider transaction.UnitOfWorkProvider,
 	cms services.ContainerManagementService,
 	eventBus EventBus,
+	mcServerStatusService services.MinecraftServerStatusService,
 ) *StartServerEventListener {
 	return &StartServerEventListener{
-		logger:      l,
-		uowProvider: uowProvider,
-		cms:         cms,
-		eventBus:    eventBus,
+		logger:                l,
+		uowProvider:           uowProvider,
+		cms:                   cms,
+		eventBus:              eventBus,
+		mcServerStatusService: mcServerStatusService,
 	}
 }
 
@@ -41,6 +44,7 @@ func (l *StartServerEventListener) Execute(evt StartServerEvent) {
 			"failed to start minecraft server",
 			slog.String("errMsg", err.Error()),
 		)
+		l.setServerStatusToStopped(ctx, uow, evt.ServerID, logger)
 		return
 	}
 	logger.Info("successfully started minecraft server")
@@ -57,6 +61,24 @@ func (l *StartServerEventListener) Execute(evt StartServerEvent) {
 		return
 	}
 	logger.Info("published ServerStartedEvent")
+}
+
+func (l *StartServerEventListener) setServerStatusToStopped(
+	ctx context.Context,
+	uow transaction.UnitOfWork,
+	serverID valueobjects.MinecraftServerID,
+	logger *slog.Logger,
+) {
+	if err := l.mcServerStatusService.UpdateStatus(
+		ctx,
+		uow,
+		serverID,
+		valueobjects.MinecraftServerStatusStopped,
+	); err != nil {
+		logger.Error("failed to set status to stopped", slog.String("errMsg", err.Error()))
+		return
+	}
+	logger.Info("status has been set back to stopped")
 }
 
 func (l *StartServerEventListener) upgradeLogger(serverID valueobjects.MinecraftServerID) *slog.Logger {
