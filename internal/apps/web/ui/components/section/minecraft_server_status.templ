@@ -22,7 +22,14 @@ templ MinecraftServerStatus(id valueobjects.MinecraftServerID, status valueobjec
 			></div>
 			<span>Starting...</span>
 		} else if status == valueobjects.MinecraftServerStatusRunning {
-			<span>Running</span>
+			<button
+				hx-post={ "/minecraft-servers/" + id.Value().String() + "/stop" }
+				hx-target="#minecraft-overview-status-div"
+				hx-swap="outerHTML"
+				class="mt-2 inline-flex items-center px-4 py-2 bg-red-500 text-white rounded-md shadow-md transition transform hover:underline duration-300 hover:scale-105"
+			>
+				Stop
+			</button>
 		}
 	</div>
 }

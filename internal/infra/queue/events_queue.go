@@ -22,15 +22,20 @@ type EventsQueue struct {
 	// FIFO queue for ServerStartedEvent
 	started chan async.ServerStartedEvent
 
+	// FIFO queue for StopServerEvent
+	stop chan async.StopServerEvent
+
 	logger *slog.Logger
 }
 
 func NewEventsQeue(queueSize uint, l *slog.Logger) *EventsQueue {
 	start := make(chan async.StartServerEvent, queueSize)
 	started := make(chan async.ServerStartedEvent, queueSize)
+	stop := make(chan async.StopServerEvent, queueSize)
 	return &EventsQueue{
 		start:   start,
 		started: started,
+		stop:    stop,
 		logger:  l,
 	}
 }
@@ -39,6 +44,7 @@ func NewEventsQeue(queueSize uint, l *slog.Logger) *EventsQueue {
 func (q *EventsQueue) StartListeners(
 	start *async.StartServerEventListener,
 	started *async.ServerStartedEventListener,
+	stop *async.StopServerEventListener,
 ) {
 	go func() {
 		for {
@@ -47,6 +53,8 @@ func (q *EventsQueue) StartListeners(
 				go start.Execute(evt)
 			case evt := <-q.started:
 				go started.Execute(evt)
+			case evt := <-q.stop:
+				go stop.Execute(evt)
 			}
 		}
 	}()
@@ -70,6 +78,16 @@ func (q *EventsQueue) PublishServerStartedEvent(evt async.ServerStartedEvent) er
 		return nil
 	default:
 		q.logger.Info("queue for ServerStartedEvent is full")
+		return ErrQueueFull
+	}
+}
+func (q *EventsQueue) PublishStopServerEvent(evt async.StopServerEvent) error {
+	select {
+	case q.stop <- evt:
+		q.logger.Info("sent StopServerEvent to listener")
+		return nil
+	default:
+		q.logger.Info("queue for StopServerEvent is full")
 		return ErrQueueFull
 	}
 }

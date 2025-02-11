@@ -15,4 +15,10 @@ type ContainerManagementService interface {
 		uow transaction.UnitOfWork,
 		serverID valueobjects.MinecraftServerID,
 	) error
+
+	StopMinecraftServer(
+		ctx context.Context,
+		uow transaction.UnitOfWork,
+		serverID valueobjects.MinecraftServerID,
+	) error
 }

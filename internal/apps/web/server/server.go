@@ -91,6 +91,14 @@ func (s *Server) Start() error {
 	)
 	http.Handle("/minecraft-servers/{serverId}/status", chainWithSession.Middleware(minecraftServerStatusHandler))
 
+	minecraftServerStopHandler := handlers.NewMinecraftServerStopHandler(
+		s.logger.With("handler", "MinecraftServerStopHandler"),
+		s.app.permService,
+		s.app.uowProvider,
+		s.app.stopMinecraftServerCmdHandler,
+	)
+	http.Handle("/minecraft-servers/{serverId}/stop", chainWithSession.Middleware(minecraftServerStopHandler))
+
 	healthHandler := handlers.NewHealthcheckHandler(s.logger.With(slog.String("handler", "HealtchCheckHandler")))
 	http.Handle("/healthcheck", chain.Middleware(healthHandler))
 
@@ -124,6 +132,12 @@ func (s *Server) startEventsQueue() {
 		s.app.minecraftServerStatusService,
 		s.app.uowProvider,
 	)
+	stopServerListener := async.NewStopServerEventListener(
+		s.logger.With("listener", "StopServerListener"),
+		s.app.uowProvider,
+		s.app.containerManagementService,
+		s.app.minecraftServerStatusService,
+	)
 	q := s.app.eventBus.(*queue.EventsQueue)
-	q.StartListeners(startServerListener, serverStartedListener)
+	q.StartListeners(startServerListener, serverStartedListener, stopServerListener)
 }

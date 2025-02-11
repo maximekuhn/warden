@@ -30,6 +30,7 @@ type application struct {
 	createMinecraftServerCmdHandler *commands.CreateMinecraftServerCommandHandler
 	startMinecraftServerCmdHandler  *commands.StartMinecraftServerCommandHandler
 	updateUserPlanCmdHandler        *commands.UpdateUserPlanCommandHandler
+	stopMinecraftServerCmdHandler   *commands.StopMinecraftServerCommandHandler
 
 	getUserPlanQueryHandler         *queries.GetUserPlanQueryHandler
 	getMinecraftServersQueryHandler *queries.GetMinecraftServersQueryHandler
@@ -88,6 +89,7 @@ func newApplication(
 		minecraftServerStatusService,
 	)
 	updateUserPlanCmdHandler := commands.NewUpdateUserPlanCommandHandler(uowProvider, userService)
+	stopMinecraftServerCmdHandler := commands.NewStopMinecraftServerCommandHandler(uowProvider, eventsQueue)
 
 	// queries
 	getUserPlanQueryHandler := queries.NewGetUserPlanQueryHandler(permService, uowProvider)
@@ -115,6 +117,7 @@ func newApplication(
 		createMinecraftServerCmdHandler: createMinecraftServerCmdHandler,
 		startMinecraftServerCmdHandler:  startMinecraftServerCmdHandler,
 		updateUserPlanCmdHandler:        updateUserPlanCmdHandler,
+		stopMinecraftServerCmdHandler:   stopMinecraftServerCmdHandler,
 		getUserPlanQueryHandler:         getUserPlanQueryHandler,
 		getMinecraftServersQueryHandler: getMinecraftServersQueryHandler,
 		getUsersQueryHandler:            getUsersQueryHandler,

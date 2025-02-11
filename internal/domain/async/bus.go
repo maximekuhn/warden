@@ -12,4 +12,7 @@ type EventBus interface {
 
 	// A non-nil error indicates that the event could not be published.
 	PublishServerStartedEvent(evt ServerStartedEvent) error
+
+	// A non-nil error indicates that the event could not be published.
+	PublishStopServerEvent(evt StopServerEvent) error
 }

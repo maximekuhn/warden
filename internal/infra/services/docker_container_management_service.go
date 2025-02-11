@@ -1,9 +1,10 @@
 package services
 
-import "fmt"
-
 import (
 	"context"
+	"errors"
+	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/docker/docker/api/types/container"
@@ -74,6 +75,7 @@ func (d *DockerContainerManagementService) StartMinecraftServer(
 			{HostIP: "0.0.0.0", HostPort: fmt.Sprint(serverPort)},
 		},
 	}
+	containerName := getContainerName(serverID)
 	resp, err := d.cli.ContainerCreate(
 		ctx,
 		&container.Config{
@@ -83,7 +85,7 @@ func (d *DockerContainerManagementService) StartMinecraftServer(
 		&container.HostConfig{PortBindings: portBindings},
 		nil,
 		nil,
-		"",
+		containerName,
 	)
 	if err != nil {
 		return err
@@ -96,4 +98,34 @@ func (d *DockerContainerManagementService) StartMinecraftServer(
 	// TODO: wait for server to actually start (check logs)
 
 	return nil
+}
+
+func (d *DockerContainerManagementService) StopMinecraftServer(
+	ctx context.Context,
+	uow transaction.UnitOfWork,
+	serverID valueobjects.MinecraftServerID,
+) error {
+	// TODO: filter by name
+	containers, err := d.cli.ContainerList(ctx, container.ListOptions{})
+	if err != nil {
+		return err
+	}
+	containerID := ""
+	// for some reason, actual name starts with a '/'
+	containerName := fmt.Sprintf("/%s", getContainerName(serverID))
+	for _, c := range containers {
+		if slices.Contains(c.Names, containerName) {
+			containerID = c.ID
+			break
+		}
+	}
+	if containerID == "" {
+		return errors.New("container is not running")
+	}
+	// TODO: check container status
+	return d.cli.ContainerStop(ctx, containerID, container.StopOptions{})
+}
+
+func getContainerName(id valueobjects.MinecraftServerID) string {
+	return fmt.Sprintf("warden-%s", id.Value().String())
 }
