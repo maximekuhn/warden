@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
@@ -70,33 +71,44 @@ func (d *DockerContainerManagementService) StartMinecraftServer(
 		return services.ErrServerNotFound
 	}
 
-	portBindings := nat.PortMap{
-		nat.Port(exposedPort): []nat.PortBinding{
-			{HostIP: "0.0.0.0", HostPort: fmt.Sprint(serverPort)},
-		},
-	}
-	containerName := getContainerName(serverID)
-	resp, err := d.cli.ContainerCreate(
-		ctx,
-		&container.Config{
-			Image:        imageName,
-			ExposedPorts: nat.PortSet{nat.Port(exposedPort): struct{}{}},
-		},
-		&container.HostConfig{PortBindings: portBindings},
-		nil,
-		nil,
-		containerName,
-	)
+	c, found, err := d.containerExists(ctx, serverID)
 	if err != nil {
 		return err
 	}
 
-	if err := d.cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
+	containerID := ""
+	if !found {
+		portBindings := nat.PortMap{
+			nat.Port(exposedPort): []nat.PortBinding{
+				{HostIP: "0.0.0.0", HostPort: fmt.Sprint(serverPort)},
+			},
+		}
+		containerName := getContainerName(serverID)
+		resp, err := d.cli.ContainerCreate(
+			ctx,
+			&container.Config{
+				Image:        imageName,
+				ExposedPorts: nat.PortSet{nat.Port(exposedPort): struct{}{}},
+			},
+			&container.HostConfig{PortBindings: portBindings},
+			nil,
+			nil,
+			containerName,
+		)
+		containerID = resp.ID
+		if err != nil {
+			return err
+		}
+	} else {
+		containerID = c.ID
+	}
+
+	// TODO: check status
+	if err := d.cli.ContainerStart(ctx, containerID, container.StartOptions{}); err != nil {
 		return err
 	}
 
 	// TODO: wait for server to actually start (check logs)
-
 	return nil
 }
 
@@ -105,25 +117,38 @@ func (d *DockerContainerManagementService) StopMinecraftServer(
 	uow transaction.UnitOfWork,
 	serverID valueobjects.MinecraftServerID,
 ) error {
-	// TODO: filter by name
-	containers, err := d.cli.ContainerList(ctx, container.ListOptions{})
+	c, found, err := d.containerExists(ctx, serverID)
 	if err != nil {
 		return err
 	}
-	containerID := ""
-	// for some reason, actual name starts with a '/'
-	containerName := fmt.Sprintf("/%s", getContainerName(serverID))
-	for _, c := range containers {
-		if slices.Contains(c.Names, containerName) {
-			containerID = c.ID
-			break
-		}
+	if !found {
+		return errors.New("container not found")
 	}
+	containerID := c.ID
 	if containerID == "" {
 		return errors.New("container is not running")
 	}
 	// TODO: check container status
 	return d.cli.ContainerStop(ctx, containerID, container.StopOptions{})
+}
+
+func (d *DockerContainerManagementService) containerExists(
+	ctx context.Context,
+	serverID valueobjects.MinecraftServerID,
+) (*types.Container, bool, error) {
+	// TODO: filter by name
+	containers, err := d.cli.ContainerList(ctx, container.ListOptions{})
+	if err != nil {
+		return nil, false, err
+	}
+	// for some reason, actual name starts with a '/'
+	containerName := fmt.Sprintf("/%s", getContainerName(serverID))
+	for _, c := range containers {
+		if slices.Contains(c.Names, containerName) {
+			return &c, true, nil
+		}
+	}
+	return nil, false, nil
 }
 
 func getContainerName(id valueobjects.MinecraftServerID) string {
