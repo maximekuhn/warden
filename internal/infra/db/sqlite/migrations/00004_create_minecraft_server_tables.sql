@@ -10,6 +10,7 @@ CREATE TABLE minecraft_server (
 CREATE TABLE minecraft_server_port (
     server_id TEXT NOT NULL,
     port INTEGER NOT NULL,
+    UNIQUE(port),
     PRIMARY KEY (server_id, port),
     FOREIGN KEY (server_id) REFERENCES minecraft_server(id) ON DELETE CASCADE
 ) ;

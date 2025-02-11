@@ -20,4 +20,6 @@ type PortRepository interface {
 		uow transaction.UnitOfWork,
 		serverID valueobjects.MinecraftServerID,
 	) (uint16, bool, error)
+
+	GetAll(ctx context.Context, uow transaction.UnitOfWork) ([]uint16, error)
 }

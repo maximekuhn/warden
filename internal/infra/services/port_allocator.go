@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"slices"
 
 	"github.com/maximekuhn/warden/internal/domain/repositories"
 	"github.com/maximekuhn/warden/internal/domain/services"
@@ -9,25 +10,18 @@ import (
 	"github.com/maximekuhn/warden/internal/domain/valueobjects"
 )
 
-// PortAllocator is a very dummy port allocator backed by a list of open ports, provided
-// when the service is created.
-//
-// Once all open ports are allocated, the service is no longer able to provide
-// one.
-//
-// TODO: once all openPorts are allocated in memory, the allocator is not working anymore
 type PortAllocator struct {
-	repository repositories.PortRepository
-	openPorts  []uint16
+	repository      repositories.PortRepository
+	configuredPorts []uint16
 }
 
 func NewPortAllocator(
 	repository repositories.PortRepository,
-	openPorts []uint16,
+	configuredPOrts []uint16,
 ) *PortAllocator {
 	return &PortAllocator{
-		repository: repository,
-		openPorts:  openPorts,
+		repository:      repository,
+		configuredPorts: configuredPOrts,
 	}
 }
 
@@ -44,7 +38,7 @@ func (pa *PortAllocator) AllocatePort(
 		return 0, services.ErrServerAlreadyHasAllocatedPort
 	}
 
-	port, err := pa.pickFirstAvailable()
+	port, err := pa.pickFirstAvailable(ctx, uow)
 	if err != nil {
 		return 0, err
 	}
@@ -53,24 +47,20 @@ func (pa *PortAllocator) AllocatePort(
 	return port, err
 }
 
-func (pa *PortAllocator) pickFirstAvailable() (uint16, error) {
-	const allocatedPort = 0
+func (pa *PortAllocator) pickFirstAvailable(
+	ctx context.Context,
+	uow transaction.UnitOfWork,
+) (uint16, error) {
+	takenPorts, err := pa.repository.GetAll(ctx, uow)
+	if err != nil {
+		return 0, err
+	}
 
-	idx := -1
-	for i, port := range pa.openPorts {
-		if port != allocatedPort {
-			idx = i
+	for _, port := range pa.configuredPorts {
+		if !slices.Contains(takenPorts, port) {
+			return port, nil
 		}
 	}
-	if idx == -1 {
-		// all ports are already allocated
-		return 0, services.ErrNoPortAvailable
-	}
 
-	serverPort := pa.openPorts[idx]
-
-	// allocate port
-	pa.openPorts[idx] = allocatedPort
-
-	return serverPort, nil
+	return 0, services.ErrNoPortAvailable
 }

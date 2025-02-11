@@ -45,6 +45,8 @@ func (s *SqliteMinecraftServerRepository) Save(
 		ms.CreatedAt,
 		ms.UpdatedAt,
 	)
+	if err != nil {
+	}
 	return err
 }
 
