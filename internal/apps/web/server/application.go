@@ -34,6 +34,7 @@ type application struct {
 	getUserPlanQueryHandler         *queries.GetUserPlanQueryHandler
 	getMinecraftServersQueryHandler *queries.GetMinecraftServersQueryHandler
 	getUsersQueryHandler            *queries.GetUsersQueryHandler
+	getMinecraftServerQueryHandler  *queries.GetMinecraftServerQueryHandler
 }
 
 func newApplication(
@@ -81,7 +82,11 @@ func newApplication(
 		minecraftServerRepository,
 		uowProvider,
 	)
-	startMinecraftServerCmdHandler := commands.NewStartMinecraftServerCommandHandler(eventsQueue, uowProvider)
+	startMinecraftServerCmdHandler := commands.NewStartMinecraftServerCommandHandler(
+		eventsQueue,
+		uowProvider,
+		minecraftServerStatusService,
+	)
 	updateUserPlanCmdHandler := commands.NewUpdateUserPlanCommandHandler(uowProvider, userService)
 
 	// queries
@@ -97,6 +102,7 @@ func newApplication(
 		userService,
 		userRepository,
 	)
+	getMcServerQueryHandler := queries.NewGetMinecraftServerQueryHandler(uowProvider, minecraftServerRepository)
 
 	return application{
 		authService:                     authService,
@@ -112,5 +118,6 @@ func newApplication(
 		getUserPlanQueryHandler:         getUserPlanQueryHandler,
 		getMinecraftServersQueryHandler: getMinecraftServersQueryHandler,
 		getUsersQueryHandler:            getUsersQueryHandler,
+		getMinecraftServerQueryHandler:  getMcServerQueryHandler,
 	}, nil
 }

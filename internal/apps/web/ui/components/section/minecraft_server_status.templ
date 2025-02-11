@@ -1,0 +1,28 @@
+package section
+
+import "github.com/maximekuhn/warden/internal/domain/valueobjects"
+
+templ MinecraftServerStatus(id valueobjects.MinecraftServerID, status valueobjects.MinecraftServerStatus) {
+	<div id="minecraft-overview-status-div">
+		if status == valueobjects.MinecraftServerStatusStopped {
+			<button
+				hx-post={ "/minecraft-servers/" + id.Value().String() }
+				hx-target="#minecraft-overview-status-div"
+				hx-swap="outerHTML"
+				class="mt-2 inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-md shadow-md transition transform hover:underline duration-300 hover:scale-105"
+			>
+				Start
+			</button>
+		} else if status == valueobjects.MinecraftServerStatusStarting {
+			<div
+				hx-get={ "/minecraft-servers/" + id.Value().String() + "/status" }
+				hx-target="#minecraft-overview-status-div"
+				hx-swap="outerHTML"
+				hx-trigger="load delay:2s"
+			></div>
+			<span>Starting...</span>
+		} else if status == valueobjects.MinecraftServerStatusRunning {
+			<span>Running</span>
+		}
+	</div>
+}

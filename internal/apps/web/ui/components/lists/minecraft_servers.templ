@@ -35,7 +35,8 @@ templ minecraftServersListItem(server queries.MinecraftServerOverview, hostname 
 			@displayStatus(server.Status)
 		</div>
 		<div class="flex items-end">
-			<button
+			<a
+				href={ templ.SafeURL(fmt.Sprintf("/minecraft-servers/%s", server.ID.Value().String())) }
 				class="mt-2 flex items-center px-4 py-2 bg-primary text-white rounded-md shadow-md transition transform hover:underline duration-300 hover:scale-105"
 			>
 				<svg
@@ -47,7 +48,7 @@ templ minecraftServersListItem(server queries.MinecraftServerOverview, hostname 
 					<path d="M19.14 12.936c.04-.303.06-.613.06-.936s-.02-.633-.06-.936l2.037-1.584a.5.5 0 00.12-.61l-1.926-3.338a.5.5 0 00-.57-.19l-2.4.96c-.5-.38-1.04-.7-1.64-.96L14.5 2.18a.5.5 0 00-.43-.35h-3.14a.5.5 0 00-.43.35l-.36 2.44c-.6.26-1.14.58-1.64.96l-2.4-.96a.5.5 0 00-.57.19L2.82 8.99a.5.5 0 00.12.61l2.037 1.584c-.04.303-.06.613-.06.936s.02.633.06.936l-2.037 1.584a.5.5 0 00-.12.61l1.926 3.338c.11.2.36.27.57.19l2.4-.96c.5.38 1.04.7 1.64.96l.36 2.44c.03.2.22.35.43.35h3.14c.21 0 .4-.15.43-.35l.36-2.44c.6-.26 1.14-.58 1.64-.96l2.4.96c.21.09.46-.01.57-.19l1.926-3.338a.5.5 0 00-.12-.61l-2.037-1.584zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path>
 				</svg>
 				Manage
-			</button>
+			</a>
 		</div>
 	</div>
 }

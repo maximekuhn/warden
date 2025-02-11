@@ -5,7 +5,9 @@ import "github.com/maximekuhn/warden/internal/auth"
 templ Navbar(loggedUser auth.User) {
 	<nav class="flex items-center justify-between bg-secondary p-4 text-white">
 		<div class="flex items-center">
-			<img src="/assets/images/logo.png" alt="Logo" class="mr-2 h-8 w-auto"/>
+			<a href="/">
+				<img src="/assets/images/logo.png" alt="Logo" class="mr-2 h-8 w-auto"/>
+			</a>
 			<span class="text-2xl font-semibold">Warden</span>
 		</div>
 		<div class="relative flex items-center">

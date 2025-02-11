@@ -1,0 +1,42 @@
+package navbar
+
+import "github.com/maximekuhn/warden/internal/apps/web/ui/components/svgs"
+
+const (
+	ServerNavBarTabOverview = "overview"
+	ServerNavBarTabPlayers  = "players"
+	ServerNavBarTabConsole  = "console"
+	ServerNavBarTabSettings = "settings"
+)
+
+templ ServerNavbar(activeTab string) {
+	<nav class="w-fit h-fit flex flex-row border-t border-x border-primary text-left p-1 text-xl">
+		<a href="#" class={ tabClass(activeTab, ServerNavBarTabOverview) }>
+			@svgs.MinecraftServerNavbarOverviewSvg()
+			Overview
+		</a>
+		<a href="#" class={ tabClass(activeTab, ServerNavBarTabPlayers) }>
+			@svgs.MinecraftServerNavbarPlayersSvg()
+			Players
+		</a>
+		<a href="#" class={ tabClass(activeTab, ServerNavBarTabConsole) }>
+			@svgs.MinecraftServerNavbarConsoleSvg()
+			Console
+		</a>
+		<a href="#" class={ tabClass(activeTab, ServerNavBarTabSettings) }>
+			@svgs.MinecraftServerNavbarSettingsSvg()
+			Settings
+		</a>
+	</nav>
+}
+
+func tabClass(activeTab, tab string) string {
+	base := "flex items-center gap-2 px-4 py-2"
+	if tab != ServerNavBarTabSettings {
+		base = base + " border-r-2"
+	}
+	if activeTab == tab {
+		return base + " underline"
+	}
+	return base + " text-gray-700"
+}

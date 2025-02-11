@@ -1,0 +1,19 @@
+package pages
+
+import (
+	"github.com/maximekuhn/warden/internal/apps/web/ui/components/navbar"
+	"github.com/maximekuhn/warden/internal/auth"
+)
+
+templ MinecraftServer(loggedUser auth.User, activeTab string, section templ.Component) {
+	@PageWithNavbar(loggedUser, minecraftServerBody(activeTab, section))
+}
+
+templ minecraftServerBody(activeTab string, section templ.Component) {
+	<div class="px-24 space-x-12 max-h-full h-full" id="minecraft-server-page-body">
+		@navbar.ServerNavbar(activeTab)
+		<div class="flex-1 overflow-auto border border-primary">
+			@section
+		</div>
+	</div>
+}

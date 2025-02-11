@@ -79,8 +79,17 @@ func (s *Server) Start() error {
 		s.app.startMinecraftServerCmdHandler,
 		s.app.uowProvider,
 		s.app.permService,
+		s.app.getMinecraftServerQueryHandler,
 	)
 	http.Handle("/minecraft-servers/{serverId}", chainWithSession.Middleware(minecraftServerHandler))
+
+	minecraftServerStatusHandler := handlers.NewMinecraftServerStatusHandler(
+		s.logger.With(slog.String("handler", "MinecraftServerStatusHandler")),
+		s.app.permService,
+		s.app.getMinecraftServerQueryHandler,
+		s.app.uowProvider,
+	)
+	http.Handle("/minecraft-servers/{serverId}/status", chainWithSession.Middleware(minecraftServerStatusHandler))
 
 	healthHandler := handlers.NewHealthcheckHandler(s.logger.With(slog.String("handler", "HealtchCheckHandler")))
 	http.Handle("/healthcheck", chain.Middleware(healthHandler))

@@ -217,6 +217,8 @@ func msStatusToSqlite(s valueobjects.MinecraftServerStatus) int {
 		return 1
 	case valueobjects.MinecraftServerStatusStopped:
 		return 2
+	case valueobjects.MinecraftServerStatusStarting:
+		return 3
 	default:
 		panic("unreachable")
 	}
@@ -228,6 +230,8 @@ func sqliteStatusToMsStatus(s int) (valueobjects.MinecraftServerStatus, error) {
 		return valueobjects.MinecraftServerStatusRunning, nil
 	case 2:
 		return valueobjects.MinecraftServerStatusStopped, nil
+	case 3:
+		return valueobjects.MinecraftServerStatusStarting, nil
 	default:
 		return "", fmt.Errorf("corrupted status (%d)", s)
 	}

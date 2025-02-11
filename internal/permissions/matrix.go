@@ -1,8 +1,8 @@
 package permissions
 
 var roleToActions = map[Role][]Action{
-	RoleViewer: {},
-	RoleAdmin:  {ActionStartServer, ActionStopServer},
+	RoleViewer: {ActionViewServer},
+	RoleAdmin:  {ActionViewServer, ActionStartServer, ActionStopServer},
 }
 
 var planToPolicies = map[Plan][]Policy{

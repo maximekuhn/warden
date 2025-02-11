@@ -1,0 +1,10 @@
+package section
+
+import "github.com/maximekuhn/warden/internal/domain/entities"
+
+templ MinecraftServerOverview(server *entities.MinecraftServer) {
+	<div class="h-full max-h-full p-8">
+		<h1 class="text-2xl">{ server.Name.Value() }</h1>
+		@MinecraftServerStatus(server.ID, server.Status)
+	</div>
+}

@@ -7,4 +7,5 @@ type Action string
 const (
 	ActionStartServer Action = "action.startServer"
 	ActionStopServer  Action = "action.stopServer"
+	ActionViewServer  Action = "action.viewServer"
 )
