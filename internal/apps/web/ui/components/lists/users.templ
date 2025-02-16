@@ -19,7 +19,7 @@ templ usersListItem(user queries.UserDetails) {
 			<img src="/assets/images/steve.jpeg" alt="User avatar" class="w-16 h-16 object-cover"/>
 			<div>
 				<p class="text-sm text-gray-500 truncate">Email: { user.Email.Value() }</p>
-				<p class="text-sm text-gray-500 truncate">Joined: { user.CreatedAt.UTC().Format("Jan 2, 2006 15:04") }</p>
+				<p class="text-sm text-gray-500 truncate">Joined: { user.CreatedAt.UTC().Format("Jan 2, 2006 15:04") } (UTC)</p>
 				<p class="text-sm text-gray-500 truncate">Plan: <span class="font-semibold">{ string(user.Plan) }</span></p>
 				<p class="text-sm text-gray-500 truncate">ID: { user.ID.String() }</p>
 			</div>
