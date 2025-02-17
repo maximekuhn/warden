@@ -1,17 +1,10 @@
 FROM eclipse-temurin:21-jre
 
-ARG GID=1000
-ARG UID=1000
-RUN getent group $GID || groupadd -g $GID steve
-RUN useradd -m -u $UID -g $GID -s /bin/bash steve
-
-USER steve
-
-WORKDIR /home/steve
+WORKDIR /home/ubuntu
 RUN wget https://api.papermc.io/v2/projects/paper/versions/1.21.3/builds/81/downloads/paper-1.21.3-81.jar -O paper.jar
 COPY ./start.sh start.sh
 
-WORKDIR /home/steve/paper
+WORKDIR /home/ubuntu/paper
 RUN echo "eula=true" > eula.txt
-CMD ["/home/steve/start.sh"]
+CMD ["/home/ubuntu/start.sh"]
 
