@@ -1,7 +1,10 @@
 FROM eclipse-temurin:21-jre
 
-WORKDIR /setup
-RUN useradd -ms /bin/bash steve
+ARG GID=1000
+ARG UID=1000
+RUN groupadd -g $GID steve
+RUN useradd -m -u $UID -g $GID -s /bin/bash steve
+
 USER steve
 
 WORKDIR /home/steve
