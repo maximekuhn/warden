@@ -2,7 +2,7 @@ FROM eclipse-temurin:21-jre
 
 ARG GID=1000
 ARG UID=1000
-RUN groupadd -g $GID steve
+RUN getent group $GID || groupadd -g $GID steve
 RUN useradd -m -u $UID -g $GID -s /bin/bash steve
 
 USER steve
