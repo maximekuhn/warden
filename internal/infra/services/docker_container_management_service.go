@@ -99,7 +99,7 @@ func (d *DockerContainerManagementService) StartMinecraftServer(
 					{
 						Type:   mount.TypeBind,
 						Source: getVolumeName(d.persistenceHostPath, serverID),
-						Target: "/home/steve/paper",
+						Target: "/home/ubuntu/paper",
 						BindOptions: &mount.BindOptions{
 							CreateMountpoint: true,
 						},
