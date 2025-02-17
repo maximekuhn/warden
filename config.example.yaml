@@ -12,3 +12,7 @@ admin:
   username: "steve"
   # tartare2boeuf
   hashedPassword: "$2y$10$ijt.SMna.a/0n803t8/6FOTSDdBdeo/jRqALM/Xm/uWxxSi5fwA7O"
+
+docker:
+  persistence:
+    hostpath: "/Users/maximekuhn/Code/warden/docker-minecraft-servers"

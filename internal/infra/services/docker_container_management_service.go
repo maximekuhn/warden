@@ -10,6 +10,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/maximekuhn/warden/internal/domain/repositories"
@@ -24,18 +25,20 @@ const (
 )
 
 type DockerContainerManagementService struct {
-	cli      *client.Client
-	portRepo repositories.PortRepository
+	cli                 *client.Client
+	portRepo            repositories.PortRepository
+	persistenceHostPath string
 }
 
-func NewDockerContainerManagementService(portRepo repositories.PortRepository) (*DockerContainerManagementService, error) {
+func NewDockerContainerManagementService(portRepo repositories.PortRepository, persistenceHostPath string) (*DockerContainerManagementService, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		return nil, err
 	}
 	return &DockerContainerManagementService{
-		cli:      cli,
-		portRepo: portRepo,
+		cli:                 cli,
+		portRepo:            portRepo,
+		persistenceHostPath: persistenceHostPath,
 	}, nil
 }
 
@@ -90,7 +93,19 @@ func (d *DockerContainerManagementService) StartMinecraftServer(
 				Image:        imageName,
 				ExposedPorts: nat.PortSet{nat.Port(exposedPort): struct{}{}},
 			},
-			&container.HostConfig{PortBindings: portBindings},
+			&container.HostConfig{
+				PortBindings: portBindings,
+				Mounts: []mount.Mount{
+					{
+						Type:   mount.TypeBind,
+						Source: getVolumeName(d.persistenceHostPath, serverID),
+						Target: "/home/steve/paper",
+						BindOptions: &mount.BindOptions{
+							CreateMountpoint: true,
+						},
+					},
+				},
+			},
 			nil,
 			nil,
 			containerName,
@@ -137,7 +152,7 @@ func (d *DockerContainerManagementService) containerExists(
 	serverID valueobjects.MinecraftServerID,
 ) (*types.Container, bool, error) {
 	// TODO: filter by name
-	containers, err := d.cli.ContainerList(ctx, container.ListOptions{})
+	containers, err := d.cli.ContainerList(ctx, container.ListOptions{All: true})
 	if err != nil {
 		return nil, false, err
 	}
@@ -153,4 +168,12 @@ func (d *DockerContainerManagementService) containerExists(
 
 func getContainerName(id valueobjects.MinecraftServerID) string {
 	return fmt.Sprintf("warden-%s", id.Value().String())
+}
+
+func getVolumeName(hostpath string, id valueobjects.MinecraftServerID) string {
+	return fmt.Sprintf(
+		"%s/papermc%s",
+		hostpath,
+		strings.ReplaceAll(id.Value().String(), "-", ""),
+	)
 }

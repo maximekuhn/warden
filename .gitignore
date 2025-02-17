@@ -6,3 +6,4 @@
 /warden-logs.log
 .DS_Store
 /node_modules
+/docker-minecraft-servers

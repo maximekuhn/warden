@@ -59,7 +59,10 @@ func newApplication(
 
 	// create docker container management service and checks if mc server image is
 	// already built. If not, return an error.
-	dockerContainerMngmtService, err := services.NewDockerContainerManagementService(portRepository)
+	dockerContainerMngmtService, err := services.NewDockerContainerManagementService(
+		portRepository,
+		conf.Docker.Persistence.Hostpath,
+	)
 	if err != nil {
 		return application{}, err
 	}

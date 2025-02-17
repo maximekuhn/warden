@@ -10,6 +10,7 @@ import (
 type Config struct {
 	MinecraftServers minecraftServers `yaml:"minecraftServers"`
 	Admin            admin            `yaml:"admin"`
+	Docker           docker           `yaml:"docker"`
 }
 
 type minecraftServers struct {
@@ -25,6 +26,14 @@ type mcServersPortAllocation struct {
 type admin struct {
 	Username       string `yaml:"username"`
 	HashedPassword string `yaml:"hashedPassword"`
+}
+
+type docker struct {
+	Persistence dockerPersistence `yaml:"persistence"`
+}
+
+type dockerPersistence struct {
+	Hostpath string `yaml:"hostpath"`
 }
 
 func ParseConfigFromFile(filepath string) (*Config, error) {
@@ -46,6 +55,9 @@ func (c *Config) Validate() error {
 	}
 	if len(c.MinecraftServers.PortAllocation.Ports) < 1 {
 		return errors.New("portAllocation.strategy.'pre-allocated' strategy requires at least one port")
+	}
+	if c.Docker.Persistence.Hostpath == "" {
+		return errors.New("docker.persistence.hostpath must be a valid path")
 	}
 	return nil
 }
