@@ -41,7 +41,7 @@ func (s *Server) Start() error {
 
 	chain := middlewares.Chain(reqIdMiddleware, loggerMiddleware)
 	chainWithSession := middlewares.Chain(chain, sessionMiddleware)
-	chainAdmin := middlewares.Chain(loggerMiddleware, adminMiddleware)
+	chainAdmin := middlewares.Chain(reqIdMiddleware, loggerMiddleware, adminMiddleware)
 
 	indexHandler := handlers.NewIndexHandler(
 		s.logger.With(slog.String(logger.LoggerNameFieldName, "IndexHandler")),
